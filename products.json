@@ -1,0 +1,68 @@
+[
+  {
+    "id": "1",
+    "name": "Fancy Flower Cracker",
+    "price": 50,
+    "category": "Category 1",
+    "images": [
+      "product1.jpg",
+      "product2.jpg",
+      "product3.jpg"
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Sky Shot",
+    "price": 120,
+    "category": "Category 2",
+    "images": [
+      "product2.jpg",
+      "product3.jpg",
+      "product1.jpg"
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Rocket Pack",
+    "price": 80,
+    "category": "Category 3",
+    "images": [
+      "product3.jpg",
+      "product1.jpg",
+      "product2.jpg"
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Fancy Flower Cracker 1",
+    "price": 50,
+    "category": "Category 4",
+    "images": [
+      "product1.jpg",
+      "product2.jpg",
+      "product3.jpg"
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Sky Shot 1",
+    "price": 120,
+    "category": "Category 5",
+    "images": [
+      "product2.jpg",
+      "product3.jpg",
+      "product1.jpg"
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Rocket Pack 1",
+    "price": 80,
+    "category": "Category 6",
+    "images": [
+      "product3.jpg",
+      "product1.jpg",
+      "product2.jpg"
+    ]
+  }
+]
