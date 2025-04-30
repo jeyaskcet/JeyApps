@@ -1,0 +1,212 @@
+[
+  {
+    "id": "1",
+    "name": "Fancy Flower Cracker",
+    "price": 50,
+    "category": "Category 1",
+    "images": ["product_1_1.jpg", "product_1_2.jpg", "product_1_3.jpg"]
+  },
+  {
+    "id": "7",
+    "name": "Twinkling Sparkler",
+    "price": 40,
+    "category": "Category 1",
+    "images": ["product_7_1.jpg", "product_7_2.jpg", "product_7_3.jpg"]
+  },
+  {
+    "id": "8",
+    "name": "Colorful Burst",
+    "price": 60,
+    "category": "Category 1",
+    "images": ["product_8_1.jpg", "product_8_2.jpg", "product_8_3.jpg"]
+  },
+  {
+    "id": "9",
+    "name": "Bright Star",
+    "price": 45,
+    "category": "Category 1",
+    "images": ["product_9_1.jpg", "product_9_2.jpg", "product_9_3.jpg"]
+  },
+  {
+    "id": "10",
+    "name": "Mini Fountain",
+    "price": 55,
+    "category": "Category 1",
+    "images": ["product_10_1.jpg", "product_10_2.jpg", "product_10_3.jpg"]
+  },
+  {
+    "id": "2",
+    "name": "Sky Shot",
+    "price": 120,
+    "category": "Category 2",
+    "images": ["product_2_1.jpg", "product_2_2.jpg", "product_2_3.jpg"]
+  },
+  {
+    "id": "11",
+    "name": "Boomer Rocket",
+    "price": 130,
+    "category": "Category 2",
+    "images": ["product_11_1.jpg", "product_11_2.jpg", "product_11_3.jpg"]
+  },
+  {
+    "id": "12",
+    "name": "Golden Shower",
+    "price": 125,
+    "category": "Category 2",
+    "images": ["product_12_1.jpg", "product_12_2.jpg", "product_12_3.jpg"]
+  },
+  {
+    "id": "13",
+    "name": "Spark Blitz",
+    "price": 110,
+    "category": "Category 2",
+    "images": ["product_13_1.jpg", "product_13_2.jpg", "product_13_3.jpg"]
+  },
+  {
+    "id": "14",
+    "name": "Comet Trail",
+    "price": 140,
+    "category": "Category 2",
+    "images": ["product_14_1.jpg", "product_14_2.jpg", "product_14_3.jpg"]
+  },
+  {
+    "id": "3",
+    "name": "Rocket Pack",
+    "price": 80,
+    "category": "Category 3",
+    "images": ["product_3_1.jpg", "product_3_2.jpg", "product_3_3.jpg"]
+  },
+  {
+    "id": "15",
+    "name": "Thunder Rocket",
+    "price": 90,
+    "category": "Category 3",
+    "images": ["product_15_1.jpg", "product_15_2.jpg", "product_15_3.jpg"]
+  },
+  {
+    "id": "16",
+    "name": "Sky Arrow",
+    "price": 85,
+    "category": "Category 3",
+    "images": ["product_16_1.jpg", "product_16_2.jpg", "product_16_3.jpg"]
+  },
+  {
+    "id": "17",
+    "name": "Rapid Blaze",
+    "price": 95,
+    "category": "Category 3",
+    "images": ["product_17_1.jpg", "product_17_2.jpg", "product_17_3.jpg"]
+  },
+  {
+    "id": "18",
+    "name": "Red Comet",
+    "price": 88,
+    "category": "Category 3",
+    "images": ["product_18_1.jpg", "product_18_2.jpg", "product_18_3.jpg"]
+  },
+  {
+    "id": "4",
+    "name": "Fancy Flower Cracker 1",
+    "price": 50,
+    "category": "Category 4",
+    "images": ["product_4_1.jpg", "product_4_2.jpg", "product_4_3.jpg"]
+  },
+  {
+    "id": "19",
+    "name": "Golden Fountain",
+    "price": 60,
+    "category": "Category 4",
+    "images": ["product_19_1.jpg", "product_19_2.jpg", "product_19_3.jpg"]
+  },
+  {
+    "id": "20",
+    "name": "Magic Wheel",
+    "price": 55,
+    "category": "Category 4",
+    "images": ["product_20_1.jpg", "product_20_2.jpg", "product_20_3.jpg"]
+  },
+  {
+    "id": "21",
+    "name": "Color Spark",
+    "price": 52,
+    "category": "Category 4",
+    "images": ["product_21_1.jpg", "product_21_2.jpg", "product_21_3.jpg"]
+  },
+  {
+    "id": "22",
+    "name": "Flower Bomb",
+    "price": 58,
+    "category": "Category 4",
+    "images": ["product_22_1.jpg", "product_22_2.jpg", "product_22_3.jpg"]
+  },
+  {
+    "id": "5",
+    "name": "Sky Shot 1",
+    "price": 120,
+    "category": "Category 5",
+    "images": ["product_5_1.jpg", "product_5_2.jpg", "product_5_3.jpg"]
+  },
+  {
+    "id": "23",
+    "name": "Blue Sky Fire",
+    "price": 125,
+    "category": "Category 5",
+    "images": ["product_23_1.jpg", "product_23_2.jpg", "product_23_3.jpg"]
+  },
+  {
+    "id": "24",
+    "name": "Fire Blossom",
+    "price": 118,
+    "category": "Category 5",
+    "images": ["product_24_1.jpg", "product_24_2.jpg", "product_24_3.jpg"]
+  },
+  {
+    "id": "25",
+    "name": "Night Star",
+    "price": 122,
+    "category": "Category 5",
+    "images": ["product_25_1.jpg", "product_25_2.jpg", "product_25_3.jpg"]
+  },
+  {
+    "id": "26",
+    "name": "Light Whirl",
+    "price": 115,
+    "category": "Category 5",
+    "images": ["product_26_1.jpg", "product_26_2.jpg", "product_26_3.jpg"]
+  },
+  {
+    "id": "6",
+    "name": "Rocket Pack 1",
+    "price": 80,
+    "category": "Category 6",
+    "images": ["product_6_1.jpg", "product_6_2.jpg", "product_6_3.jpg"]
+  },
+  {
+    "id": "27",
+    "name": "Mega Rocket",
+    "price": 92,
+    "category": "Category 6",
+    "images": ["product_27_1.jpg", "product_27_2.jpg", "product_27_3.jpg"]
+  },
+  {
+    "id": "28",
+    "name": "Sky Hammer",
+    "price": 95,
+    "category": "Category 6",
+    "images": ["product_28_1.jpg", "product_28_2.jpg", "product_28_3.jpg"]
+  },
+  {
+    "id": "29",
+    "name": "Color Comet",
+    "price": 89,
+    "category": "Category 6",
+    "images": ["product_29_1.jpg", "product_29_2.jpg", "product_29_3.jpg"]
+  },
+  {
+    "id": "30",
+    "name": "Night Blazer",
+    "price": 94,
+    "category": "Category 6",
+    "images": ["product_30_1.jpg", "product_30_2.jpg", "product_30_3.jpg"]
+  }
+]
