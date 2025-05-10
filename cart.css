@@ -1,0 +1,79 @@
+.cart-container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    .quantity-controls button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .summary {
+      margin-top: 20px;
+    }
+    .coupon-section {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .coupon-box {
+      display: none;
+      margin-top: 10px;
+    }
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .discount {
+      color: green;
+    }
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  position: relative;
+  width: 300px;
+}
+
+.modal-content.success::after {
+  content: '✔';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  background: green;
+  color: white;
+  font-size: 24px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

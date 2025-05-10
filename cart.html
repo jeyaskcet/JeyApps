@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JeyCrakers | Cart</title>
+  <link rel="stylesheet" href="home.css" />
+  <link rel="stylesheet" href="cart.css" />
+</head>
+<body>
+  <header>
+  <div class="header-content">
+    <h1>JeyCrakers</h1>
+    <button class="menu-btn" id="menu-btn">
+      <img src="icons/slide-bar.png" alt="Menu" />
+    </button>
+  </div>
+</header>
+ 
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+  <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
+    <ul>
+     <li><a href="#"><img src="icons/home.png" alt="About" class="sidebar-icon">Home</a></li>
+  <li><a href="#"><img src="icons/aboutus.png" alt="About" class="sidebar-icon">About Us</a></li>
+  <li><a href="#"><img src="icons/contactus.png" alt="Contact" class="sidebar-icon">Contact Us</a></li>
+  <li><a href="#"><img src="icons/settings.png" alt="Settings" class="sidebar-icon">Settings</a></li>
+  <li><a href="#"><img src="icons/logout.png" alt="Logout" class="sidebar-icon">Logout</a></li>
+</ul>
+</div>
+
+  </header>
+  <div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+
+  <main>
+    <div class="cart-container">
+      <h2>Your Cart</h2>
+      <div id="cart-items"></div>
+
+      <div class="summary">
+        <div class="total-line"><span>Subtotal:</span><span id="subtotal">$0.00</span></div>
+        <div class="total-line"><span>Platform Fee:</span><span id="platform-fee">$2.00</span></div>
+        <div class="total-line"><span>Delivery Charge:</span><span id="delivery-charge">$5.00</span></div>
+        <div class="total-line discount" id="discount-line" style="display:none;"><span>Discount:</span><span id="discount-amount">-$0.00</span></div>
+        <hr>
+        <div class="total-line"><strong>Total:</strong><strong id="total">$0.00</strong></div>
+      </div>
+<!-- Coupon Modal -->
+<div id="coupon-modal" class="modal-backdrop">
+  <div id="modal-content" class="modal-content">
+    <input type="text" id="coupon-code" placeholder="Enter promo code" />
+    <button id="submit-coupon-btn">Apply</button>
+    <p>Hint: Use <strong>FREEDELIVERY</strong> or <strong>FREEPLATFORM</strong></p>
+  </div>
+</div>
+
+      <div class="coupon-section">
+        <button id="apply-coupon-btn">Apply Coupon</button>
+        
+  </main>
+
+<script src="framework.js"></script>
+  <script src="app.js"></script>
+  <script src="cart.js"></script>
+ 
+</body>
+</html>

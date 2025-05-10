@@ -11,35 +11,123 @@
 </head>
 <body>
   <header>
-    <div class="header-content">
-      <h1>JeyCrakers</h1>
-      <div id="cart-btn" class="cart-btn">
-        Cart <span id="cart-item-count">0</span>
-      </div>
-    </div>
+  <div class="header-content">
+    <h1>JeyCrakers</h1>
+    <button class="menu-btn" id="menu-btn">
+      <img src="icons/slide-bar.png" alt="Menu" />
+    </button>
+  </div>
+</header>
+ 
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+  <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
+    <ul>
+     <ul>
+  <li><a href="#" id="home-btn"><img src="icons/home.png" alt="Home" class="sidebar-icon">Home</a></li>
+  <li><a href="#" id="about-btn"><img src="icons/aboutus.png" alt="About Us" class="sidebar-icon">About Us</a></li>
+  <li><a href="#" id="contact-btn"><img src="icons/contactus.png" alt="Contact Us" class="sidebar-icon">Contact Us</a></li>
+  <li><a href="#" id="settings-btn"><img src="icons/settings.png" alt="Settings" class="sidebar-icon">Settings</a></li>
+  <li><a href="#" id="logout-btn"><img src="icons/logout.png" alt="Logout" class="sidebar-icon">Logout</a></li>
+</ul>
+
+</ul>
+</div>
+
   </header>
-  <div id="category-filters" class="category-filters"></div>
+  <div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+ <div id="category-filters" class="category-filters"></div>
+ 
+<div class="product-status-wrapper" style="display: flex; align-items: center; gap: 10px;">
+    <div id="product-status" class="product-status-label">
+        All Products (<span class="total-count">0</span>)
+    </div>
+    <button id="reset-filters-btn" class="reset-btn" title="Reset Filters">
+        <img src="icons/reset.png" alt="Reset" />
+    </button>
+</div>
+
+<div id="reset-popup" class="popup">
+    <div class="popup-content">
+        <p>Are you sure you want to reset all the filters applied?</p>
+        <button id="confirm-reset-btn">Yes</button>
+        <button id="cancel-reset-btn">No</button>
+    </div>
+</div>
 
   <main>
     <section id="products-list"></section>
   </main>
 
-  <div class="cart-modal" style="display: none;">
+ <div class="cart-modal" style="display: none;">
   <div class="cart-modal-content">
+    <button id="close-cart-btn" class="close-cart-btn">&times;</button>
     <h2>Shopping Cart</h2>
-    <div class="cart-item-list"></div> <!-- Container to list cart items -->
+    <div class="cart-item-list"></div> 
+    <div class="cart-empty" style="display: none; text-align: center;">
+      <img src="img/emptycart.png" alt="Empty Cart">
+      <p>Your cart is empty!</p>
+    </div>
     <div class="cart-total">Total: $0.00</div>
-    <button id="go-to-payment-btn">Go to Payment</button>
-    <button id="open-cart-btn" class="cart-btn">Open Cart</button>
-<button id="close-cart-btn" class="cart-btn">Close Cart</button>
+    <button id="open-cart-btn" class="checkout">Go to Cart</button>
   </div>
 </div>
 
+
+<div id="filter-modal" class="filter-modal" style="display: none;">
+  <div class="filter-content">
+      <button id="close-filter-btn" class="close-filter-btn">&times;</button>
+    <h3>Select Categories</h3>
+    <div id="filter-options"></div>
+    <button id="select-all-btn">Select All</button>
+    <button id="apply-filter-btn">Apply</button>
+  </div>
+</div>
 
   <div id="payment-page" class="payment-page">
     <h2>Payment Information</h2>
     <button id="back-to-cart-btn">Back to Cart</button>
   </div>
+  
+  <div id="search-popup" class="search-popup">
+  <div class="search-content">
+    <div class="search-input-wrapper">
+      <input type="text" id="search-input" placeholder="Search Products..." />
+      <button id="clear-search-btn" class="clear-search-btn" style="display: none;">&times;</button>
+    </div>
+    <button id="execute-search-btn">Search</button>
+  </div>
+</div>
+
+<div id="no-results" class="no-results" style="display: none;">
+  <img src="img/no-products-found.png" alt="No products found" />
+  <p>No products found for "<span id="searched-key"></span>"</p>
+  <button id="back-to-products-btn">Back to Products</button>
+</div>
+
+
+<footer>
+  <div class="footer-buttons">
+    <button class="footer-btn">
+      <img src="icons/filter.png" alt="Filter" />
+      <span>Filter</span>
+     </button>
+    <button id="footer-search-btn" class="footer-btn">
+      <img src="icons/search.png" alt="Search" />
+      <span>Search</span>
+    </button>
+    </button>
+    <button class="footer-btn">
+      <img src="icons/offers.png" alt="Offers" />
+      <span>Offers</span>
+    <button id="cart-btn" class="footer-btn">
+      <img src="icons/cart.png" alt="Cart" />
+      <span id="cart-item-count">Cart</span>
+    </button>
+  </div>
+</footer>
 
   <script src="framework.js"></script>
   <script src="home.js"></script>

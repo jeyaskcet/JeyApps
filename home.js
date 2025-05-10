@@ -7,8 +7,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const backToCartBtn = document.getElementById('back-to-cart-btn');
   const closeCartBtn = document.getElementById('close-cart-btn');
   const cartItemCount = document.getElementById('cart-item-count');
+  const filterBtn = document.querySelector('.footer-btn img[alt="Filter"]')?.closest('.footer-btn');
+const filterModal = document.getElementById('filter-modal');
+const filterOptions = document.getElementById('filter-options');
+const applyFilterBtn = document.getElementById('apply-filter-btn');
+const closeFilterBtn = document.getElementById('close-filter-btn');
+const searchPopup = document.getElementById('search-popup');
+  const searchInput = document.getElementById('search-input');
+  const executeSearchBtn = document.getElementById('execute-search-btn');
+  const clearSearchBtn = document.getElementById('clear-search-btn');
+  const footerSearchBtn = document.getElementById('footer-search-btn');
+let selectedCategories = new Set();  // To remember last filters
+let allSelected = false;             // For the toggle button
+let lastSelectedCategory = 'All';  // default: All products
 
-  let cart = {};
+
+  let cart = JSON.parse(localStorage.getItem('cart')) || {};
+  
   let products = [];
 
   fetch('products.json')
@@ -18,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
 MyFramework.log('Products loaded');
 renderCategories(); // Add this!
 renderProducts();    // Safe now with default param
+updateCartUI();
+
 
     })
     .catch(err => {
@@ -42,12 +59,27 @@ function renderCategories() {
 }
 
 function filterProducts(category) {
-  let filtered = category === 'All' ? products : products.filter(p => p.category === category);
-  renderProducts(filtered);
+  lastSelectedCategory = category;
+  
+  if (category === 'All') {
+    selectedCategories = new Set();  // no filter
+    renderProducts();
+  } else {
+    selectedCategories = new Set([category]);  // overwrite multi-selection
+    const filtered = products.filter(p => p.category === category);
+    renderProducts(filtered);
+  }
 }
 
-  function renderProducts(filtered = products) {
+  function renderProducts(filtered = products, totalCount = products.length) {
   productsList.innerHTML = '';
+
+  const statusElem = document.getElementById('product-status');
+  if (filtered.length === totalCount) {
+    statusElem.innerHTML = `All Products (<span class="total-count">${totalCount}</span>)`;
+  } else {
+    statusElem.innerHTML = `Filtered (<span class="filtered-count">${filtered.length}</span>/<span class="total-count">${totalCount}</span>)`;
+  }
 
   filtered.forEach(product => {
     const card = document.createElement('div');
@@ -105,6 +137,167 @@ function filterProducts(category) {
   bindAddButtons();
   initCarousels();
 }
+
+function applySavedFilters() {
+  if (selectedCategories.size === 0) {
+    renderProducts();  // no filters applied = show all
+    MyFramework.log('Restored filter: All categories');
+  } else {
+    const filtered = products.filter(p => selectedCategories.has(p.category));
+    renderProducts(filtered, products.length);
+    MyFramework.log(`Restored filter: ${Array.from(selectedCategories).join(', ')}`);
+  }
+}
+
+function handleSearchResults(results, searchKey) {
+    const productContainer = document.getElementById('products-list'); 
+    productContainer.innerHTML = ''; 
+
+    if (results.length === 0) {
+        showNoResults(searchKey);
+    } else {
+        hideNoResults();
+        renderProducts(results, products.length);  // just render them!
+    }
+}
+
+
+document.getElementById('back-to-products-btn').addEventListener('click', () => {
+  hideNoResults();
+  applySavedFilters();  // <-- restore the last filters (multi-category works)
+});
+
+
+if (filterBtn) {
+  filterBtn.addEventListener('click', () => {
+    showFilterOptions();
+    filterModal.style.display = 'flex';
+    MyFramework.log('Opened filter modal');
+  });
+}
+
+closeFilterBtn.addEventListener('click', () => {
+  filterModal.style.display = 'none';
+  MyFramework.log('Closed filter modal');
+});
+  applyFilterBtn.addEventListener('click', () => {
+  const selected = Array.from(filterOptions.querySelectorAll('input[type="checkbox"]:checked'))
+    .map(cb => cb.value);
+
+  selectedCategories = new Set(selected);  // Save selection for next time
+
+  if (selected.length === 0) {
+    renderProducts(); // No filters = show all
+    MyFramework.log('Applied filter: All categories');
+  } else {
+    const filtered = products.filter(p => selected.includes(p.category));
+    renderProducts(filtered, products.length);
+    MyFramework.log(`Applied filter: ${selected.join(', ')}`);
+  }
+
+  // Update allSelected state
+  allSelected = (selected.length === (categories.length - 1));
+  filterModal.style.display = 'none';
+});
+
+function showFilterOptions() {
+  filterOptions.innerHTML = '';
+categories.slice(0, -1).forEach(cat => { // skip 'All'
+  const label = document.createElement('label');
+  label.innerHTML = `
+    <input type="checkbox" value="${cat}" ${selectedCategories.has(cat) ? 'checked' : ''}> ${cat}
+  `;
+  filterOptions.appendChild(label);
+});
+
+
+  // Set the initial state of Select All button based on selectedCategories
+  const totalCats = categories.length - 1;
+  allSelected = (selectedCategories.size === totalCats);
+  updateSelectAllButton();
+}
+
+const selectAllBtn = document.getElementById('select-all-btn');
+
+selectAllBtn.addEventListener('click', () => {
+  const checkboxes = filterOptions.querySelectorAll('input[type="checkbox"]');
+
+  if (!allSelected) {
+    checkboxes.forEach(cb => cb.checked = true);
+    allSelected = true;
+    MyFramework.log('Selected all categories');
+  } else {
+    checkboxes.forEach(cb => cb.checked = false);
+    allSelected = false;
+    MyFramework.log('Unselected all categories');
+  }
+  updateSelectAllButton();
+});
+
+function updateSelectAllButton() {
+  selectAllBtn.textContent = allSelected ? 'Unselect All' : 'Select All';
+}
+
+ // Toggle search popup
+  footerSearchBtn.addEventListener('click', () => {
+    searchPopup.classList.toggle('show');
+  });
+
+  if (executeSearchBtn) {
+  executeSearchBtn.addEventListener('click', () => {
+    const searchTerm = searchInput.value.trim();
+    if (searchTerm === '') {
+      alert('Please enter a search term.');
+      return;
+    }
+
+if (searchInput) {
+    const results = performSearch(searchTerm); // your search logic here
+    document.getElementById('search-popup').classList.remove('show'); // HIDE the popup
+  //  handleSearchResults(results, searchTerm);
+    searchPopup.classList.remove('show');
+  }
+  });
+}
+
+// Show or hide the clear button based on input
+searchInput.addEventListener('input', () => {
+  if (searchInput.value.trim() !== '') {
+    clearSearchBtn.style.display = 'flex';
+  } else {
+    clearSearchBtn.style.display = 'none';
+  }
+});
+
+// Clear input and hide clear button when X is clicked
+clearSearchBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  clearSearchBtn.style.display = 'none';
+});
+
+  function performSearch(searchTerm) {
+    console.log('Searching for:', searchTerm);
+
+    const productCards = Array.from(document.querySelectorAll('.product-card'));
+    let matched = 0;
+
+    productCards.forEach(productCard => {
+        const name = productCard.querySelector('h3')?.innerText.toLowerCase() || '';
+        if (name.includes(searchTerm.toLowerCase())) {
+            productCard.style.display = 'block';
+            matched++;
+        } else {
+            productCard.style.display = 'none';
+        }
+    });
+
+    if (matched === 0) {
+        showNoResults(searchTerm);
+    } else {
+        hideNoResults();
+    }
+}
+
 
 
   function bindAddButtons() {
@@ -174,15 +367,28 @@ function filterProducts(category) {
   });
 
   function updateCartUI() {
-    const cartItemsCount = Object.keys(cart).length;
-    cartItemCount.textContent = cartItemsCount;
+  const cartItemsCount = Object.keys(cart).length;
+  cartItemCount.textContent = cartItemsCount;
 
-    const cartList = document.querySelector('.cart-item-list');
-    const cartTotal = document.querySelector('.cart-total');
+  const cartList = document.querySelector('.cart-item-list');
+  const cartTotal = document.querySelector('.cart-total');
+  const cartEmpty = document.querySelector('.cart-empty');
+  const goToCartBtn = document.getElementById('open-cart-btn');
 
-    if (cartList && cartTotal) {
-      cartList.innerHTML = '';
-      let totalAmount = 0;
+  if (cartList && cartTotal) {
+    cartList.innerHTML = '';
+    let totalAmount = 0;
+
+    if (cartItemsCount === 0) {
+      // Show empty cart message
+      cartEmpty.style.display = 'block';
+      cartTotal.style.display = 'none';
+      if (goToCartBtn) goToCartBtn.style.display = 'none';
+    } else {
+      // Show cart items and total
+      cartEmpty.style.display = 'none';
+      cartTotal.style.display = 'block';
+      if (goToCartBtn) goToCartBtn.style.display = 'inline-block';
 
       Object.keys(cart).forEach(productId => {
         const product = products.find(p => p.id === productId);
@@ -204,6 +410,10 @@ function filterProducts(category) {
       cartTotal.textContent = `Total: $${totalAmount.toFixed(2)}`;
     }
   }
+
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
 
   function initCarousels() {
     document.querySelectorAll('.carousel').forEach(carousel => {
@@ -247,25 +457,64 @@ function filterProducts(category) {
     MyFramework.log('Cart closed');
   });
 
-  goToPaymentBtn.addEventListener('click', () => {
-    cartModal.style.display = 'none';
-    paymentPage.style.display = 'block';
-    MyFramework.log('Navigated to payment page');
-  });
-
   backToCartBtn.addEventListener('click', () => {
     paymentPage.style.display = 'none';
     cartModal.style.display = 'flex';
     MyFramework.log('Back to cart');
   });
 
-  document.getElementById('open-cart-btn')?.addEventListener('click', toggleCartModal);
+  //document.getElementById('open-cart-btn')?.addEventListener('click', toggleCartModal);
+  
+   document.getElementById('open-cart-btn').addEventListener('click', function () {
+  showLoading();
+  window.location.href = 'cart.html';
+});
+
   document.getElementById('close-cart-btn')?.addEventListener('click', toggleCartModal);
 
   function toggleCartModal() {
-    const modal = document.querySelector('.cart-modal');
-    if (modal) {
-      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-    }
+  const modal = document.querySelector('.cart-modal');
+  if (modal) {
+    modal.classList.toggle('show');
   }
+}
+});
+
+document.getElementById('close-filter-btn')?.addEventListener('click', toggleFilterModal);
+
+function toggleFilterModal() {
+  const modal = document.querySelector('#filter-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+function showNoResults(searchedKey) {
+  document.getElementById('no-results').style.display = 'block';
+  document.getElementById('searched-key').textContent = searchedKey;
+}
+
+function hideNoResults() {
+  document.getElementById('no-results').style.display = 'none';
+}
+
+const resetBtn = document.getElementById('reset-filters-btn');
+const resetPopup = document.getElementById('reset-popup');
+const confirmResetBtn = document.getElementById('confirm-reset-btn');
+const cancelResetBtn = document.getElementById('cancel-reset-btn');
+
+// Show the popup when reset button is clicked
+resetBtn.addEventListener('click', () => {
+    resetPopup.style.display = 'flex'; // or 'block', depending on your CSS
+});
+
+// Cancel button hides the popup
+cancelResetBtn.addEventListener('click', () => {
+    resetPopup.style.display = 'none';
+});
+
+// Confirm button resets filters and closes popup
+confirmResetBtn.addEventListener('click', () => {
+    renderProducts(); // Call your existing function to reload everything
+    resetPopup.style.display = 'none';
 });
