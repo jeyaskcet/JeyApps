@@ -1,0 +1,80 @@
+[
+  {
+    "code": "NEWUSER50",
+    "type": "public",
+    "description": "New users get 50% off on orders above ₹3000",
+    "minPurchase": 3000,
+    "discountPercent": 50
+  },
+  {
+    "code": "SAVE20",
+    "type": "public",
+    "description": "Get 20% off on orders above ₹1500 (Max discount ₹200)",
+    "minPurchase": 1500,
+    "discountPercent": 20,
+    "maxDiscount": 200
+  },
+  {
+    "code": "FESTIVE25",
+    "type": "public",
+    "description": "Festive offer - 5% off on orders above ₹4000 (Max ₹75)",
+    "minPurchase": 4000,
+    "discountPercent": 5,
+    "maxDiscount": 75
+  },
+  {
+    "code": "BIGSAVE30",
+    "type": "public",
+    "description": "30% off on big orders above ₹7000 (Max ₹150)",
+    "minPurchase": 7000,
+    "discountPercent": 30,
+    "maxDiscount": 150
+  },
+  {
+    "code": "MEGA2",
+    "type": "public",
+    "description": "2% off on all orders above ₹1200",
+    "minPurchase": 1200,
+    "discountPercent": 2
+  },
+  {
+    "code": "FIRSTBUY",
+    "type": "public",
+    "description": "10% off on your first order (above ₹800)",
+    "minPurchase": 800,
+    "discountPercent": 10
+  },
+  {
+    "code": "SUMMER10",
+    "type": "public",
+    "description": "Summer offer - 10% off above ₹2500 (Max ₹60)",
+    "minPurchase": 2500,
+    "discountPercent": 10,
+    "maxDiscount": 60
+  },
+  {
+    "code": "NEWYEAR15",
+    "type": "public",
+    "description": "New Year offer - 15% off above ₹4500 (Max ₹90)",
+    "minPurchase": 4500,
+    "discountPercent": 15,
+    "maxDiscount": 90
+  },
+
+  {
+    "code": "VIPUSER123",
+    "type": "private",
+    "description": "Exclusive 10% off for VIP users (Max ₹200) above ₹2000",
+    "minPurchase": 2000,
+    "discountPercent": 10,
+    "maxDiscount": 200
+  },
+  {
+    "code": "LOYALTY789",
+    "type": "private",
+    "description": "Loyalty discount 10% (Max ₹100) above ₹1000",
+    "minPurchase": 1000,
+    "discountPercent": 10,
+    "maxDiscount": 100
+  }
+]

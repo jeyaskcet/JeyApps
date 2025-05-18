@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JeyCrakers | Cart</title>
-  <link rel="stylesheet" href="home.css" />
+  <link rel="stylesheet" href="app.css" />
   <link rel="stylesheet" href="cart.css" />
 </head>
 <body>
@@ -20,13 +20,14 @@
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar">
   <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
-    <ul>
-     <li><a href="#"><img src="icons/home.png" alt="About" class="sidebar-icon">Home</a></li>
-  <li><a href="#"><img src="icons/aboutus.png" alt="About" class="sidebar-icon">About Us</a></li>
-  <li><a href="#"><img src="icons/contactus.png" alt="Contact" class="sidebar-icon">Contact Us</a></li>
-  <li><a href="#"><img src="icons/settings.png" alt="Settings" class="sidebar-icon">Settings</a></li>
-  <li><a href="#"><img src="icons/logout.png" alt="Logout" class="sidebar-icon">Logout</a></li>
-</ul>
+  <ul>
+ <!--    <li><a href="#" id="home-btn"><img src="icons/home.png" alt="Home" class="sidebar-icon">Home</a></li>
+    <li><a href="#"><img src="icons/profile.png" alt="Profile" class="sidebar-icon">Profile</a></li>  -->
+    <li><a href="#"><img src="icons/orders.png" alt="Orders" class="sidebar-icon">Your Orders</a></li>
+    <li><a href="#"><img src="icons/contactus.png" alt="Contact" class="sidebar-icon">Contact Us</a></li>
+    <li><a href="#"><img src="icons/settings.png" alt="Settings" class="sidebar-icon">Settings</a></li>
+    <li><a href="#" id="logout-btn"><img src="icons/logout.png" alt="Logout" class="sidebar-icon">Logout</a></li>
+  </ul>
 </div>
 
   </header>
@@ -34,36 +35,155 @@
   <div class="loading-spinner"></div>
 </div>
 
-  <main>
-    <div class="cart-container">
-      <h2>Your Cart</h2>
-      <div id="cart-items"></div>
+<div id="profile-section" class="profile-section hidden">
+  <div class="profile-header">
+    <h2>Your Profile</h2>
+    <button id="edit-profile-btn" class="edit-icon-btn" title="Edit Profile">
+      <img src="icons/edit.png" alt="Edit" />
+    </button>
+  </div>
 
-      <div class="summary">
-        <div class="total-line"><span>Subtotal:</span><span id="subtotal">$0.00</span></div>
-        <div class="total-line"><span>Platform Fee:</span><span id="platform-fee">$2.00</span></div>
-        <div class="total-line"><span>Delivery Charge:</span><span id="delivery-charge">$5.00</span></div>
-        <div class="total-line discount" id="discount-line" style="display:none;"><span>Discount:</span><span id="discount-amount">-$0.00</span></div>
-        <hr>
-        <div class="total-line"><strong>Total:</strong><strong id="total">$0.00</strong></div>
-      </div>
-<!-- Coupon Modal -->
-<div id="coupon-modal" class="modal-backdrop">
-  <div id="modal-content" class="modal-content">
-    <input type="text" id="coupon-code" placeholder="Enter promo code" />
-    <button id="submit-coupon-btn">Apply</button>
-    <p>Hint: Use <strong>FREEDELIVERY</strong> or <strong>FREEPLATFORM</strong></p>
+  <div class="profile-fields">
+  <label class="input-label">
+    <span class="input-title">Name:</span>
+    <input type="text" id="profile-name" class="input-field" disabled />
+  </label>
+  <label class="input-label">
+    <span class="input-title">Mobile Number:</span>
+    <input type="number" id="profile-mobile" class="input-field" disabled />
+  </label>
+  <label class="input-label">
+    <span class="input-title">Email ID (Optional):</span>
+    <input type="email" id="profile-email" class="input-field" disabled />
+  </label>
+
+  <div class="profile-buttons">
+    <button id="save-profile-btn" class="hidden">Save</button>
+  </div>
+</div>
+  <div class="address-section">
+    <div class="address-header">
+      <h3>Addresses</h3>
+      <button id="add-address-btn" class="add-address-btn">+ Add Address</button>
+    </div>
+    <div id="address-list" class="address-list"></div>
+    <div id="no-address-message" class="no-address">No address found. Please add one.</div>
   </div>
 </div>
 
-      <div class="coupon-section">
-        <button id="apply-coupon-btn">Apply Coupon</button>
-        
-  </main>
 
-<script src="framework.js"></script>
-  <script src="app.js"></script>
+<div class="modal-overlay address-modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add Address</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body scrollable-content" id="address-options">
+      <div class="address-form">
+  <div class="form-group"><input type="text" id="door" placeholder="Door Number" /></div>
+  <div class="form-group"><input type="text" id="street" placeholder="Street / Area" /></div>
+  <div class="form-group"><input type="text" id="landmark" placeholder="Landmark (Optional)" /></div>
+  <div class="form-group"><input type="text" id="city" placeholder="City" /></div>
+  <div class="form-group"><input type="text" id="district" placeholder="District" /></div>
+  <div class="form-group"><input type="text" id="state" placeholder="State" /></div>
+  <div class="form-group"><input type="text" id="pincode" placeholder="Pincode" maxlength="6" /></div>
+  <div class="form-group"><textarea id="address-input" placeholder="Additional Address Details (Optional)"></textarea></div>
+</div>
+    </div>
+    <div class="modal-footer">
+      <div class="form-actions">
+  <button id="save-address-btn" class="btn btn-save">Save</button>
+  <button id="cancel-address-btn" class="btn btn-cancel">Cancel</button>
+</div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  <main>
+    <div class="cart-container">
+      <div class="cart-header">
+  <h2>Your Cart</h2>
+  <img src="icons/deletecart.png" alt="DeleteCart" class="delete-cart" id="delete-cart-btn" />
+</div>
+      <div id="cart-items"></div>
+      
+      <div class="summary" id="summary-section">
+        <div class="total-line"><span>Subtotal:</span><span id="subtotal">₹0.00</span></div>
+        <div class="total-line"><span>Platform Fee:</span><span id="platform-fee">₹0.00</span></div>
+        <div class="total-line"><span>Delivery Charge:</span><span id="delivery-charge">₹0.00</span></div>
+        <div class="total-line discount" id="discount-line" style="display:none;"><span>Discount:</span><span id="discount-amount">-₹0.00</span></div>
+        <hr>
+        <div class="total-line"><strong>Total:</strong><strong id="total">₹0.00</strong></div>
+      </div>
+      
+      <div id="empty-cart" class="empty-cart-container hidden">
+  <img src="img/deletedcart.png" alt="Empty Cart" />
+  <p>Your cart is empty.</p>
+<!--    <button id="go-home-btn">Go to Home</button>  -->
+</div>
+   
+   
+<!-- Coupon Modal -->
+<div id="coupon-modal" class="modal-overlay-cart">
+  <div class="modal-content-cart" id="coupon-modal-content-cart">
+    <div class="modal-header-cart">
+      <h2>Apply Coupon</h2>
+      <button id="close-coupon-btn" class="modal-close-cart">&times;</button>
+    </div>
+    <div class="modal-body-cart">
+      <input type="text" id="coupon-code" placeholder="Enter promo code" />
+      <button id="submit-coupon-btn" class="apply-btn">Apply</button>
+      <p class="hint">Hint: Try <strong>NEWUSER50</strong>, <strong>SAVE20</strong></p>
+    </div>
+    <div class="modal-footer-cart"></div>
+    <div id="coupon-success" class="success-animation hidden"></div>
+  </div>
+</div>
+      
+        
+        <div id="custom-alert" class="custom-alert hidden">
+  <div class="custom-alert-box">
+    <span id="alert-close" class="alert-close">&times;</span>
+    <h3 id="alert-title"></h3>
+    <p id="alert-message"></p>
+    <div class="alert-buttons">
+      <button id="alert-ok-btn" class="confirm-btn">OK</button>
+      <button id="alert-cancel-btn" class="cancel-btn hidden">Cancel</button>
+    </div>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="footer-buttons">
+    <button id="home-btn" class="footer-btn">
+      <img src="icons/home.png" alt="Home" />
+      <span>Home</span>
+     </button>
+    <button id="profile-btn" class="footer-btn">
+      <img src="icons/profile.png" alt="Search" />
+      <span>Profile</span>
+    </button>
+    <button id="footer-applycoupon-btn" class="footer-btn">
+      <img src="icons/applycoupon.png" alt="Apply Coupon" />
+      <span>Apply Coupon</span>
+    </button>   
+    <button id="footer-next-btn" class="footer-btn">
+      <img src="icons/next.png" alt="Next Page" />
+      <span>Next</span>
+    </button>
+  </div>
+</footer>
+        
+  
+
+  <script src="framework.js"></script>
   <script src="cart.js"></script>
+  <script src="app.js"></script>
  
 </body>
 </html>

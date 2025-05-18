@@ -7,8 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const backToCartBtn = document.getElementById('back-to-cart-btn');
   const closeCartBtn = document.getElementById('close-cart-btn');
   const cartItemCount = document.getElementById('cart-item-count');
+  const cartBtnFooter = document.getElementById('cart-btn-footer');
   const filterBtn = document.querySelector('.footer-btn img[alt="Filter"]')?.closest('.footer-btn');
-const filterModal = document.getElementById('filter-modal');
+const filterModal = document.querySelector('.filter-modal');
+const Modal = document.querySelector('.modal-overlay');
 const filterOptions = document.getElementById('filter-options');
 const applyFilterBtn = document.getElementById('apply-filter-btn');
 const closeFilterBtn = document.getElementById('close-filter-btn');
@@ -17,6 +19,14 @@ const searchPopup = document.getElementById('search-popup');
   const executeSearchBtn = document.getElementById('execute-search-btn');
   const clearSearchBtn = document.getElementById('clear-search-btn');
   const footerSearchBtn = document.getElementById('footer-search-btn');
+  const resetBtn = document.getElementById('reset-filters-btn');
+const resetPopup = document.getElementById('reset-popup');
+const confirmResetBtn = document.getElementById('confirm-reset-btn');
+const cancelResetBtn = document.getElementById('cancel-reset-btn');
+const cartList = document.querySelector('.cart-item-list');
+  const cartTotal = document.querySelector('.cart-total');
+  const cartEmpty = document.querySelector('.cart-empty');
+  const goToCartBtn = document.getElementById('open-cart-btn');
 let selectedCategories = new Set();  // To remember last filters
 let allSelected = false;             // For the toggle button
 let lastSelectedCategory = 'All';  // default: All products
@@ -58,6 +68,30 @@ function renderCategories() {
   });
 }
 
+function bindResetButton() {
+  const filterBtn = document.querySelector('.footer-btn img[alt="Filter"]')?.closest('.footer-btn');
+  if (filterBtn) {
+    filterBtn.addEventListener('click', () => {
+      showFilterOptions();
+      filterModal.style.display = 'flex';  
+      MyFramework.log('Opened filter modal');
+    });
+  }
+  const footerSearchBtn = document.getElementById('footer-search-btn');
+  if (footerSearchBtn) {
+    footerSearchBtn.addEventListener('click', () => {
+      searchPopup.classList.toggle('show');
+      MyFramework.log('opened Search Modal')
+    });
+  }
+  const resetBtn = document.getElementById('reset-filters-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      resetPopup.style.display = 'flex';
+    });
+  }
+}
+
 function filterProducts(category) {
   lastSelectedCategory = category;
   
@@ -68,6 +102,7 @@ function filterProducts(category) {
     selectedCategories = new Set([category]);  // overwrite multi-selection
     const filtered = products.filter(p => p.category === category);
     renderProducts(filtered);
+    updateCartCount();
   }
 }
 
@@ -76,9 +111,27 @@ function filterProducts(category) {
 
   const statusElem = document.getElementById('product-status');
   if (filtered.length === totalCount) {
-    statusElem.innerHTML = `All Products (<span class="total-count">${totalCount}</span>)`;
+    statusElem.innerHTML = `All Products (<span class="total-count">${totalCount}</span>)
+    <button class="footer-btn">
+      <img src="icons/filter.png" alt="Filter" />
+     </button>
+     <button id="footer-search-btn" class="footer-btn">
+      <img src="icons/search.png" alt="Search" />
+    </button>
+    <button id="reset-filters-btn" class="footer-btn" title="Reset Filters">
+        <img src="icons/reset.png" alt="Reset" />
+    </button>`;
   } else {
-    statusElem.innerHTML = `Filtered (<span class="filtered-count">${filtered.length}</span>/<span class="total-count">${totalCount}</span>)`;
+    statusElem.innerHTML = `Filtered (<span class="filtered-count">${filtered.length}</span>/<span class="total-count">${totalCount}</span>)
+  <button class="footer-btn">
+      <img src="icons/filter.png" alt="Filter" />
+     </button>
+     <button id="footer-search-btn" class="footer-btn">
+      <img src="icons/search.png" alt="Search" />
+    </button>
+    <button id="reset-filters-btn" class="footer-btn" title="Reset Filters">
+        <img src="icons/reset.png" alt="Reset" />
+    </button>`;
   }
 
   filtered.forEach(product => {
@@ -103,7 +156,7 @@ function filterProducts(category) {
         <div class="carousel-dots">${dotsHtml}</div>
       </div>
       <h3>${product.name}</h3>
-      <div class="product-price">$${product.price}</div>
+      <div class="product-price">₹${product.price}</div>
 
       ${inCart
         ? `
@@ -112,7 +165,7 @@ function filterProducts(category) {
             <span class="quantity">${quantity}</span>
             <button class="increase-btn" data-id="${product.id}">+</button>
           </div>
-          <div class="product-total" style="display:block;">$${totalPrice}</div>
+          <div class="product-total" style="display:block;">₹${totalPrice}</div>
           <button class="add-btn" data-id="${product.id}" style="display:none;">Add +</button>
         `
         : `
@@ -122,7 +175,7 @@ function filterProducts(category) {
             <span class="quantity">1</span>
             <button class="increase-btn" data-id="${product.id}">+</button>
           </div>
-          <div class="product-total" style="display:none;">$${product.price}</div>
+          <div class="product-total" style="display:none;">₹${product.price}</div>
         `
       }
     `;
@@ -136,7 +189,20 @@ function filterProducts(category) {
 
   bindAddButtons();
   initCarousels();
+  bindResetButton();
+  updateCartUI();
 }
+
+// Cancel button hides the popup
+cancelResetBtn.addEventListener('click', () => {
+    resetPopup.style.display = 'none';
+});
+
+// Confirm button resets filters and closes popup
+confirmResetBtn.addEventListener('click', () => {
+    renderProducts(); // Call your existing function to reload everything
+    resetPopup.style.display = 'none';
+});
 
 function applySavedFilters() {
   if (selectedCategories.size === 0) {
@@ -171,14 +237,26 @@ document.getElementById('back-to-products-btn').addEventListener('click', () => 
 if (filterBtn) {
   filterBtn.addEventListener('click', () => {
     showFilterOptions();
-    filterModal.style.display = 'flex';
+    filterModal.style.display = 'flex';  
     MyFramework.log('Opened filter modal');
   });
 }
 
-closeFilterBtn.addEventListener('click', () => {
-  filterModal.style.display = 'none';
-  MyFramework.log('Closed filter modal');
+if (cartBtnFooter) {
+  cartBtnFooter.addEventListener('click', () => {
+    saveSelectedProductsToStorage()
+    navigateToCartPage();
+    MyFramework.log('done');
+  });
+}
+
+
+
+document.querySelectorAll('.modal-close').forEach(btn => {
+  btn.addEventListener('click', () => {
+  btn.closest('.modal-overlay').style.display = 'none';
+    MyFramework.log('Closed modal');
+  });
 });
   applyFilterBtn.addEventListener('click', () => {
   const selected = Array.from(filterOptions.querySelectorAll('input[type="checkbox"]:checked'))
@@ -239,9 +317,9 @@ function updateSelectAllButton() {
 }
 
  // Toggle search popup
-  footerSearchBtn.addEventListener('click', () => {
+/*    footerSearchBtn.addEventListener('click', () => {
     searchPopup.classList.toggle('show');
-  });
+  });   */
 
   if (executeSearchBtn) {
   executeSearchBtn.addEventListener('click', () => {
@@ -308,6 +386,7 @@ clearSearchBtn.addEventListener('click', () => {
         if (!product) return;
 
         cart[id] = 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
 
         const card = btn.closest('.product-card');
         const qtyControls = card.querySelector('.quantity-controls');
@@ -316,7 +395,7 @@ clearSearchBtn.addEventListener('click', () => {
         btn.style.display = 'none';
         qtyControls.style.display = 'flex';
         totalElem.style.display = 'block';
-        totalElem.textContent = `$${product.price * cart[id]}`;
+        totalElem.textContent = `₹${(product.price * cart[id])}`;
 
         card.classList.add('active');
         MyFramework.log(`Added 1 ${product.name} to cart`);
@@ -336,7 +415,7 @@ clearSearchBtn.addEventListener('click', () => {
       cart[id]++;
       const card = target.closest('.product-card');
       card.querySelector('.quantity').textContent = cart[id];
-      card.querySelector('.product-total').textContent = `$${(product.price * cart[id]).toFixed(2)}`;
+      card.querySelector('.product-total').textContent = `₹${(product.price * cart[id]).toFixed(2)}`;
       MyFramework.log(`Increased ${product.name} to ${cart[id]}`);
       updateCartUI();
     }
@@ -358,22 +437,29 @@ clearSearchBtn.addEventListener('click', () => {
         MyFramework.log(`Removed ${product.name} from cart`);
       } else {
         card.querySelector('.quantity').textContent = cart[id];
-        card.querySelector('.product-total').textContent = `$${(product.price * cart[id]).toFixed(2)}`;
+        card.querySelector('.product-total').textContent = `₹${(product.price * cart[id]).toFixed(2)}`;
         MyFramework.log(`Decreased ${product.name} to ${cart[id]}`);
       }
 
       updateCartUI();
     }
   });
+  
+  function updateCartCount() {
+  const cartItems = JSON.parse(localStorage.getItem('cart')) || {};
+  const cartCount = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0); // total item quantities
+  const countEl = document.getElementById('cart-item-count');
 
+  if (cartCount > 0) {
+    countEl.textContent = cartCount;
+    countEl.style.display = 'inline-block';
+  } else {
+    countEl.style.display = 'none';
+  }
+}
   function updateCartUI() {
   const cartItemsCount = Object.keys(cart).length;
   cartItemCount.textContent = cartItemsCount;
-
-  const cartList = document.querySelector('.cart-item-list');
-  const cartTotal = document.querySelector('.cart-total');
-  const cartEmpty = document.querySelector('.cart-empty');
-  const goToCartBtn = document.getElementById('open-cart-btn');
 
   if (cartList && cartTotal) {
     cartList.innerHTML = '';
@@ -393,25 +479,26 @@ clearSearchBtn.addEventListener('click', () => {
       Object.keys(cart).forEach(productId => {
         const product = products.find(p => p.id === productId);
         const quantity = cart[productId];
-
+        
         if (product) {
           const item = document.createElement('div');
           item.className = 'cart-item';
           item.innerHTML = `
             <span>${product.name}</span>
             <span>x${quantity}</span>
-            <span>$${(product.price * quantity).toFixed(2)}</span>
+            <span>₹${(product.price * quantity).toFixed(2)}</span>
           `;
           cartList.appendChild(item);
           totalAmount += product.price * quantity;
         }
       });
 
-      cartTotal.textContent = `Total: $${totalAmount.toFixed(2)}`;
+      cartTotal.textContent = `Total: ₹${totalAmount.toFixed(2)}`;
     }
   }
 
   localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
 }
 
 
@@ -448,26 +535,51 @@ clearSearchBtn.addEventListener('click', () => {
   }
 
   cartBtn.addEventListener('click', () => {
-    cartModal.style.display = 'flex';
-    MyFramework.log('Cart opened');
-  });
+  cartModal.style.display = 'flex';
+  MyFramework.log('Cart opened');
 
-  closeCartBtn.addEventListener('click', () => {
-    cartModal.style.display = 'none';
-    MyFramework.log('Cart closed');
-  });
+  // Prepare full product data for selected items
+  const selectedProducts = Object.entries(cart).map(([id, quantity]) => {
+    const product = products.find(p => p.id === id);
+    if (!product) return null;
+    return {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity,
+      total: (product.price * quantity).toFixed(2),
+    //  image: product.images[0] || ''
+    };
+  }).filter(Boolean); // Remove any null entries
 
-  backToCartBtn.addEventListener('click', () => {
-    paymentPage.style.display = 'none';
-    cartModal.style.display = 'flex';
-    MyFramework.log('Back to cart');
-  });
+  // Save to localStorage for use on cart.html
+  localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+  
+});
 
+  
+  
+  function saveSelectedProductsToStorage() {
+  const selectedProducts = Object.entries(cart).map(([id, quantity]) => {
+    const product = products.find(p => p.id === id);
+    if (!product) return null;
+    return {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity,
+      total: (product.price * quantity).toFixed(2),
+      image: product.images[0] || ''
+    };
+  }).filter(Boolean);
+
+  localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+}
   //document.getElementById('open-cart-btn')?.addEventListener('click', toggleCartModal);
   
    document.getElementById('open-cart-btn').addEventListener('click', function () {
-  showLoading();
-  window.location.href = 'cart.html';
+  navigateToCartPage()
+  MyFramework.log('Navigate to Cart Page footer button')
 });
 
   document.getElementById('close-cart-btn')?.addEventListener('click', toggleCartModal);
@@ -497,24 +609,51 @@ function showNoResults(searchedKey) {
 function hideNoResults() {
   document.getElementById('no-results').style.display = 'none';
 }
+  document.addEventListener("DOMContentLoaded", function () {
+    const offersBtn = document.querySelector(".footer-btn img[alt='Offers']").parentElement;
+    const modal = document.querySelector(".modal-overlay.offers-modal");
+    const closeModal = document.querySelector(".offers-modal-close");
+    const offersList = document.getElementById("offers-list");
 
-const resetBtn = document.getElementById('reset-filters-btn');
-const resetPopup = document.getElementById('reset-popup');
-const confirmResetBtn = document.getElementById('confirm-reset-btn');
-const cancelResetBtn = document.getElementById('cancel-reset-btn');
+    offersBtn.addEventListener("click", () => {
+      fetch("offers.json")
+        .then(res => res.json())
+        .then(data => {
+          offersList.innerHTML = '';
+          const publicOffers = data.filter(o => o.type === "public");
+          publicOffers.forEach(offer => {
+            const card = document.createElement("div");
+            card.className = "offer-card";
 
-// Show the popup when reset button is clicked
-resetBtn.addEventListener('click', () => {
-    resetPopup.style.display = 'flex'; // or 'block', depending on your CSS
-});
+            card.innerHTML = `
+              <div class="offer-code">Code: ${offer.code}</div>
+              <div class="offer-description">${offer.description}</div>
+              <button class="copy-btn" data-code="${offer.code}">Copy Code</button>
+            `;
 
-// Cancel button hides the popup
-cancelResetBtn.addEventListener('click', () => {
-    resetPopup.style.display = 'none';
-});
+            offersList.appendChild(card);
+          });
 
-// Confirm button resets filters and closes popup
-confirmResetBtn.addEventListener('click', () => {
-    renderProducts(); // Call your existing function to reload everything
-    resetPopup.style.display = 'none';
-});
+          modal.style.display = "flex";
+        });
+    });
+
+    closeModal.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("copy-btn")) {
+        const code = e.target.getAttribute("data-code");
+        navigator.clipboard.writeText(code);
+        e.target.textContent = "Copied!";
+        setTimeout(() => e.target.textContent = "Copy Code", 1000);
+      }
+    });
+  });
+  
+  
