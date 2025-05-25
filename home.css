@@ -27,11 +27,23 @@ main {
   transform: scale(1.02);
 }
 
+.product-card h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+  padding: 0 4px;
+  gap: 10px;
+  flex-wrap: wrap;
+  text-align: left;
+}
+
 .carousel {
   width: 100%;
   height: 200px;
   overflow: hidden;
-  border-radius: 12px;
   position: relative;
 }
 
@@ -78,57 +90,34 @@ main {
   text-align: center;
   margin-bottom: 10px;
 }
-.product-price {
-  text-align: center;
-  font-size: 16px;
+
+
+.product-total {
+  margin-top: 8px;
   font-weight: bold;
-  margin: 5px 0;
-}
-
-
-/* Add Button & Quantity Controls */
-.add-btn,
-.quantity-controls button {
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.add-btn {
-  background-color: #38b000;
-  color: white;
-  width: 80px;
-  margin: auto;
+  color: #1d3557;
+  background-color: #e6ffe6;
+  padding: 6px 12px;
+  border-radius: 8px;
   text-align: center;
-  display: block;
+  font-size: 15px;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-.add-btn:hover {
-  background-color: #32a400;
-}
-
-.quantity-controls {
+/* Reserve space for buttons to prevent layout jump */
+.action-area {
+  min-height: 60px; /* adjust based on your button height */
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-top: 10px;
+  justify-content: center;
 }
 
-.quantity-controls button {
-  background-color: #006d77;
-  color: white;
-  width: 32px;
-  height: 32px;
-  font-size: 18px;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-
-.quantity-controls button:hover {
-  background-color: #005555;
+.add-label {
+  color: #38b000;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 /* Total Price Display */
@@ -146,11 +135,37 @@ main {
   background-color: #ecf9ec;
 }
 
-/* Cart Item Styling */
 .cart-item {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
+  display: grid;
+  grid-template-columns: 2fr 30px 60px; /* name, qty, price */
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  font-size: 15px;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #1d3557;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-qty {
+  text-align: center;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.item-price {
+  text-align: right;
+  font-weight: bold;
+  color: #38b000;
 }
 
 /* Cart Total */
@@ -225,19 +240,19 @@ main {
 
 .product-status-label {
   font-size: 1.2em;
-  margin: 1em auto;  
+  margin: 1em auto;   
   align-items: center;
   justify-content: center;
   padding: 10px 18px;
   border: 2px solid #FF7F00;
-  border-radius: 25px;
+  border-radius: 15px;
   background: linear-gradient(90deg, #fff3e0, #ffe0b2);
   color: #333;
   font-weight: 500;
   box-shadow: 0 2px 5px rgba(255, 127, 0, 0.3);
   text-align: center;
   transition: all 0.3s ease;
-  width: 80%;
+  width: 85%;
   display: flex; /* changed from inline-block */
 }
 
@@ -253,7 +268,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 1em auto;
+ /*   margin: 1em auto;  */
 }
 
 .total-count {
@@ -493,3 +508,156 @@ main {
   align-items: center;
   justify-content: center;
 }
+
+/* Wrap to position buttons relative to the image */
+.carousel-wrapper {
+  position: relative;
+}
+
+.floating-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  /* Do not set display here — it is controlled dynamically */
+}
+
+.floating-controls .quantity-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.85); /* Light background */
+  padding: 4px 6px;
+  border-radius: 8px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); /* Optional for visibility */
+}
+
+.floating-controls .quantity-controls button {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  border-radius: 6px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-controls .increase-btn {
+  background-color: #38b000;
+}
+
+.floating-controls .decrease-btn {
+  background-color: #d90429;
+}
+
+.floating-controls .quantity {
+  font-weight: bold;
+  min-width: 20px;
+  text-align: center;
+  color: black;
+  font-size: 15px;
+}
+
+.floating-controls .add-btn {
+  width: 40px;
+  height: 40px;
+  background-color: #e6ffe6;
+  color: #38b000;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.floating-controls .add-btn .btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.product-total {
+  display: none !important;
+}
+.ribbon-wrapper {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 10;
+}
+
+.ribbon-image {
+  height: 60px;
+  width: auto;
+  display: block;
+}
+
+.ribbon-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.product-name {
+  color: #1d3557;
+  font-weight: bold;
+  font-size: 16px;
+  flex: 1;
+}
+
+.product-price {
+  display: flex;
+  color: #38b000;
+  font-weight: bold;
+  gap: 8px;
+  font-size: 16px;
+  white-space: nowrap;
+  align-items: center;
+}
+
+.mrp {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 14px;
+}
+
+.price {
+  color: #38b000; /* green shade */
+  font-weight: bold;
+}
+
+body.dark-mode .offer-card {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .offer-code {
+  color: #ffffff;
+}
+
+body.dark-mode .offer-description {
+  color: #cccccc;
+}
+
+body.dark-mode .copy-btn {
+  background-color: #3b82f6; /* blue-500 */
+  color: #ffffff;
+}
+
+body.dark-mode .copy-btn:hover {
+  background-color: #2563eb; /* blue-600 */
+}
+
+

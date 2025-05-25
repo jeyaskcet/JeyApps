@@ -87,7 +87,17 @@ function bindResetButton() {
   const resetBtn = document.getElementById('reset-filters-btn');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      resetPopup.style.display = 'flex';
+    showCustomAlert(
+  "Are you sure?",
+  "Do you want to reset all the filters applied?",
+  "Confirm",
+  () => {
+    renderProducts();
+    MyFramework.log("Filter Reset Successfully");
+  }
+);
+          
+    /*  resetPopup.style.display = 'flex';  */
     });
   }
 }
@@ -149,36 +159,46 @@ function filterProducts(category) {
     const inCart = cart[product.id];
     const quantity = inCart || 1;
     const totalPrice = (product.price * quantity).toFixed(2);
+    const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
 
     card.innerHTML = `
-      <div class="carousel" data-id="${product.id}">
-        ${imagesHtml}
-        <div class="carousel-dots">${dotsHtml}</div>
-      </div>
-      <h3>${product.name}</h3>
-      <div class="product-price">₹${product.price}</div>
+  <div class="carousel-wrapper">
+      <div class="ribbon-wrapper">
+    <span class="ribbon-text">${discount}% <br>OFF</span>
+    <img src="icons/ribbon.png" alt="Offer Ribbon" class="ribbon-image">
+  </div>
+    <div class="carousel" data-id="${product.id}">
+      ${imagesHtml}
+      <div class="carousel-dots">${dotsHtml}</div>
+    </div>
 
-      ${inCart
-        ? `
-          <div class="quantity-controls" style="display:flex;">
-            <button class="decrease-btn" data-id="${product.id}">-</button>
-            <span class="quantity">${quantity}</span>
-            <button class="increase-btn" data-id="${product.id}">+</button>
-          </div>
-          <div class="product-total" style="display:block;">₹${totalPrice}</div>
-          <button class="add-btn" data-id="${product.id}" style="display:none;">Add +</button>
-        `
-        : `
-          <button class="add-btn" data-id="${product.id}">Add +</button>
-          <div class="quantity-controls" style="display:none;">
-            <button class="decrease-btn" data-id="${product.id}">-</button>
-            <span class="quantity">1</span>
-            <button class="increase-btn" data-id="${product.id}">+</button>
-          </div>
-          <div class="product-total" style="display:none;">₹${product.price}</div>
-        `
-      }
-    `;
+    ${inCart
+      ? `
+      <div class="floating-controls">
+        <div class="quantity-controls" style="display:flex;">
+          <button class="decrease-btn" data-id="${product.id}">-</button>
+          <span class="quantity">${quantity}</span>
+          <button class="increase-btn" data-id="${product.id}">+</button>
+        </div>
+      </div>`
+      : `
+      <div class="floating-controls">
+        <button class="add-btn" data-id="${product.id}">
+          <img src="icons/add.png" alt="Add Icon" class="btn-icon">
+        </button>
+      </div>`
+    }
+  </div>
+
+ <h3>
+  <span class="product-name">${product.name}</span>
+  <span class="product-price">
+    <span class="mrp">₹${product.mrp}</span>
+    <span class="price">₹${product.price}</span>
+  </span>
+</h3>
+  <div class="product-total" style="display:${inCart ? 'block' : 'none'};">₹${totalPrice}</div>
+`;
 
     if (inCart) {
       card.classList.add('active');
@@ -191,6 +211,18 @@ function filterProducts(category) {
   initCarousels();
   bindResetButton();
   updateCartUI();
+}
+
+function insertAddButton(card, product) {
+  const controls = card.querySelector('.floating-controls');
+  controls.innerHTML = ''; // Clear old controls
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-btn';
+  addBtn.dataset.id = product.id;
+  addBtn.innerHTML = `<img src="icons/add.png" alt="Add Icon" class="btn-icon">`;
+
+  controls.appendChild(addBtn);
 }
 
 // Cancel button hides the popup
@@ -246,7 +278,7 @@ if (cartBtnFooter) {
   cartBtnFooter.addEventListener('click', () => {
     saveSelectedProductsToStorage()
     navigateToCartPage();
-    MyFramework.log('done');
+    MyFramework.log('Opened Cart Page');
   });
 }
 
@@ -376,75 +408,134 @@ clearSearchBtn.addEventListener('click', () => {
     }
 }
 
-
-
-  function bindAddButtons() {
-    document.querySelectorAll('.add-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.id;
-        const product = products.find(p => p.id === id);
-        if (!product) return;
-
-        cart[id] = 1;
-        localStorage.setItem('cart', JSON.stringify(cart));
-
-        const card = btn.closest('.product-card');
-        const qtyControls = card.querySelector('.quantity-controls');
-        const totalElem = card.querySelector('.product-total');
-
-        btn.style.display = 'none';
-        qtyControls.style.display = 'flex';
-        totalElem.style.display = 'block';
-        totalElem.textContent = `₹${(product.price * cart[id])}`;
-
-        card.classList.add('active');
-        MyFramework.log(`Added 1 ${product.name} to cart`);
-        updateCartUI();
-      });
-    });
-  }
-
-  productsList.addEventListener('click', (e) => {
-    const target = e.target;
-
-    if (target.classList.contains('increase-btn')) {
-      const id = target.dataset.id;
+function bindAddButtons() {
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
       const product = products.find(p => p.id === id);
       if (!product) return;
 
-      cart[id]++;
-      const card = target.closest('.product-card');
-      card.querySelector('.quantity').textContent = cart[id];
-      card.querySelector('.product-total').textContent = `₹${(product.price * cart[id]).toFixed(2)}`;
-      MyFramework.log(`Increased ${product.name} to ${cart[id]}`);
-      updateCartUI();
-    }
+      cart[id] = 1;
+      localStorage.setItem('cart', JSON.stringify(cart));
 
-    if (target.classList.contains('decrease-btn')) {
-      const id = target.dataset.id;
-      const product = products.find(p => p.id === id);
-      if (!product) return;
+      const card = btn.closest('.product-card');
+      const qtyControlsHTML = `
+        <div class="quantity-controls" style="display:flex;">
+          <button class="decrease-btn" data-id="${product.id}">-</button>
+          <span class="quantity">1</span>
+          <button class="increase-btn" data-id="${product.id}">+</button>
+        </div>
+      `;
 
-      cart[id]--;
-      const card = target.closest('.product-card');
+      const totalElemHTML = `<div class="product-total">₹${product.price.toFixed(2)}</div>`;
 
-      if (cart[id] <= 0) {
-        delete cart[id];
-        card.querySelector('.quantity-controls').style.display = 'none';
-        card.querySelector('.product-total').style.display = 'none';
-        card.querySelector('.add-btn').style.display = 'block';
-        card.classList.remove('active');
-        MyFramework.log(`Removed ${product.name} from cart`);
+      // Replace the floating-controls area
+      const floatingControls = card.querySelector('.floating-controls');
+      floatingControls.innerHTML = qtyControlsHTML;
+
+      // Append or update the total price element
+      let totalElem = card.querySelector('.product-total');
+      if (!totalElem) {
+        const newTotalElem = document.createElement('div');
+        newTotalElem.className = 'product-total';
+        newTotalElem.style.display = 'block';
+        newTotalElem.textContent = `₹${product.price.toFixed(2)}`;
+        card.appendChild(newTotalElem);
       } else {
-        card.querySelector('.quantity').textContent = cart[id];
-        card.querySelector('.product-total').textContent = `₹${(product.price * cart[id]).toFixed(2)}`;
-        MyFramework.log(`Decreased ${product.name} to ${cart[id]}`);
+        totalElem.textContent = `₹${product.price.toFixed(2)}`;
+        totalElem.style.display = 'block';
       }
 
+      card.classList.add('active');
+      MyFramework.log(`Added 1 ${product.name} to cart`);
       updateCartUI();
-    }
+    });
   });
+}
+
   
+  productsList.addEventListener('click', (e) => {
+  const target = e.target;
+  const button = target.closest('button');
+  if (!button) return;
+
+  const card = target.closest('.product-card');
+  if (!card) return;
+
+  // ADD button handler
+  if (button.classList.contains('add-btn')) {
+    const id = button.dataset.id;
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
+    cart[id] = 1;
+
+    const controls = card.querySelector('.floating-controls');
+
+    controls.innerHTML = `
+      <div class="quantity-controls" style="display:flex;">
+        <button class="decrease-btn" data-id="${product.id}">-</button>
+        <span class="quantity">1</span>
+        <button class="increase-btn" data-id="${product.id}">+</button>
+      </div>
+    `;
+
+    card.querySelector('.product-total').style.display = 'block';
+    card.querySelector('.product-total').textContent = `₹${product.price.toFixed(2)}`;
+    card.classList.add('active');
+
+    MyFramework.log(`Added ${product.name} to cart`);
+    updateCartUI();
+    return;
+  }
+
+  // INCREASE button handler
+  if (target.classList.contains('increase-btn')) {
+    const id = target.dataset.id;
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
+    cart[id]++;
+    const card = target.closest('.product-card');
+    card.querySelector('.quantity').textContent = cart[id];
+    card.querySelector('.product-total').textContent = `₹${(product.price * cart[id]).toFixed(2)}`;
+    MyFramework.log(`Increased ${product.name} to ${cart[id]}`);
+    updateCartUI();
+  }
+
+  // DECREASE button handler
+  if (target.classList.contains('decrease-btn')) {
+    const id = target.dataset.id;
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
+    cart[id]--;
+    const card = target.closest('.product-card');
+
+    if (cart[id] <= 0) {
+      delete cart[id];
+
+      const controls = card.querySelector('.floating-controls');
+      controls.innerHTML = `
+        <button class="add-btn" data-id="${product.id}">
+          <img src="icons/add.png" alt="Add Icon" class="btn-icon">
+        </button>
+      `;
+
+      card.querySelector('.product-total').style.display = 'none';
+      card.classList.remove('active');
+
+      MyFramework.log(`Removed ${product.name} from cart`);
+    } else {
+      card.querySelector('.quantity').textContent = cart[id];
+      card.querySelector('.product-total').textContent = `₹${(product.price * cart[id]).toFixed(2)}`;
+      MyFramework.log(`Decreased ${product.name} to ${cart[id]}`);
+    }
+
+    updateCartUI();
+  }
+});
+
   function updateCartCount() {
   const cartItems = JSON.parse(localStorage.getItem('cart')) || {};
   const cartCount = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0); // total item quantities
@@ -481,19 +572,21 @@ clearSearchBtn.addEventListener('click', () => {
         const quantity = cart[productId];
         
         if (product) {
-          const item = document.createElement('div');
-          item.className = 'cart-item';
-          item.innerHTML = `
-            <span>${product.name}</span>
-            <span>x${quantity}</span>
-            <span>₹${(product.price * quantity).toFixed(2)}</span>
-          `;
-          cartList.appendChild(item);
-          totalAmount += product.price * quantity;
-        }
+  const item = document.createElement('div');
+  item.className = 'cart-item';
+  item.innerHTML = `
+    <div class="item-name">${product.name}</div>
+    <div class="item-qty">x${quantity}</div>
+    <div class="item-price">₹${(product.price * quantity).toFixed(2)}</div>
+  `;
+  cartList.appendChild(item);
+  totalAmount += product.price * quantity;
+}
       });
 
       cartTotal.textContent = `Total: ₹${totalAmount.toFixed(2)}`;
+cartTotal.style.fontWeight = 'bold';
+cartTotal.style.color = '#1d3557';
     }
   }
 

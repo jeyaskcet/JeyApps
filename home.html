@@ -101,6 +101,19 @@
   </div>
 </div>
 
+<div id="custom-alert" class="custom-alert hidden">
+  <div class="custom-alert-box">
+    <span id="alert-close" class="alert-close">&times;</span>
+    <h3 id="alert-title"></h3>
+    <p id="alert-message"></p>
+    <div class="alert-buttons">
+      <button id="alert-ok-btn" class="confirm-btn">OK</button>
+      <button id="alert-cancel-btn" class="cancel-btn hidden">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
   
   <div id="loadingOverlay" class="loading-overlay">
   <div class="loading-spinner"></div>
@@ -118,7 +131,76 @@
     <div id="product-status" class="product-status-label">     
     </div>
     </div> 
-<Main>    
+    
+    <div id="settings-section" class="settings-section hidden">
+  <div class="settings-page">
+    <h2>Settings</h2>
+
+    <section class="theme-settings">
+      <h3>Theme</h3>
+      <label><input type="radio" name="theme" value="light" /> Light</label>
+      <label><input type="radio" name="theme" value="dark" /> Dark</label>
+    </section>
+
+    <section class="account-settings">
+      <h3>Account Settings</h3>
+      <label>
+        User Name:
+        <input type="text" id="name" value="John Doe" />
+      </label>
+      <label>
+        Password:
+        <input type="password" id="email" value="john@example.com" />
+      </label>
+      <button id="change-password-btn">Change Password</button>
+      <button id="delete-account-btn" class="danger">Delete Account</button>
+    </section>
+  </div>
+</div>
+
+
+ <!-- Contact Section -->
+  <div class="contact-container hidden" id="contactSection">
+    <div class="logo">
+      <!-- Replace with actual logo -->
+      <img src="icons/logo.png" alt="ABC Fireworks Logo" />
+    </div>
+
+    <h1>Contact Us</h1>
+    <p>
+      Welcome to <strong>ABC Fireworks Factory</strong> – your trusted partner for vibrant, safe, and spectacular fireworks. Located in the heart of <strong>XYZ</strong>, we've been lighting up celebrations across the country for over 20 years.
+    </p>
+    <p>
+      Our brand is built on quality, innovation, and tradition. With a dedicated team of over 200 skilled employees, each firework is crafted with care to ensure maximum safety and stunning visual performance.
+    </p>
+    <p>
+      For general inquiries or product details, feel free to contact us via the information below. For <strong>bulk orders or business inquiries</strong>, please contact us directly via phone or email.
+    </p>
+
+    <h2>Contact Details</h2>
+    <ul>
+      <li><strong>Phone:</strong> +91-9876543210</li>
+      <li><strong>Email:</strong> contact@abcfireworks.com</li>
+      <li><strong>Address:</strong> 123 Celebration Road, XYZ, India</li>
+    </ul>
+
+    <h2>Follow Us</h2>
+<div class="social-icons">
+  <a href="https://facebook.com/abcfireworks" target="_blank">
+    <img src="icons/facebook.png" alt="Facebook">
+  </a>
+  <a href="https://instagram.com/abcfireworks" target="_blank">
+    <img src="icons/instagram.png" alt="Instagram">
+  </a>
+  <a href="https://twitter.com/abcfireworks" target="_blank">
+    <img src="icons/whatsapp.png" alt="Twitter">
+  </a>
+    </div>
+  </div>
+  
+    
+   <Main>    
+    <button class="toggle hidden" id="themeToggle">Toggle Theme</button>
     <section id="products-list"></section>
     </Main>
   

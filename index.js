@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", function() {
             if (validPassword) {
                 localStorage.setItem("username", username);
                 navigateToHome();
+                localStorage.setItem("savedUsername", username);
+  localStorage.setItem("savedPassword", password); // NOT secure!
+  
             } else {
                 alert("Incorrect password. Please try again.");
             }
