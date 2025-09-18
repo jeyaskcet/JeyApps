@@ -24,6 +24,13 @@ body {
   color: #333;
 }
 
+body {
+  visibility: hidden; /* hide everything initially */
+}
+body.loaded {
+  visibility: visible; /* show only after JS runs */
+}
+
 /* Header Styling */
 header {
   position: sticky;
@@ -591,14 +598,14 @@ footer {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-  padding: 16px;
+  padding: 12px;
   max-width: 600px;
   margin: auto;
 }
 
 .address-form .form-group input,
 .address-form .form-group textarea {
-  width: 100%;
+  width: 90%;
   padding: 12px 14px;
   font-size: 1rem;
   border: 1px solid #ccc;
@@ -1038,4 +1045,353 @@ body.dark-mode .contact-container ul li {
 
 body.dark-mode .logo img {
   filter: brightness(0.9);
+}
+
+body.dark-mode .logo imgq {
+  font-size: 14px;
+  color: #1e293b;
+}
+/* ================================
+   Orders Container
+   ================================ */
+.orders-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.orders-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--primary-color, #2a7de1);
+  
+}
+
+.no-orders {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  font-size: 15px;
+  margin-top: 20px;
+}
+
+/* ================================
+   Order Card (List)
+   ================================ */
+.order-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+  position: relative;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  transition: all 0.25s ease;
+  z-index: 1;
+}
+
+.order-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px; /* border thickness */
+  border-radius: 14px;
+  background: linear-gradient(135deg, #3b82f6, #10b981, #f59e0b, #ef4444);
+  background-size: 300% 300%;
+  animation: borderGradient 6s ease infinite;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* animate the gradient for a "shimmer" effect */
+@keyframes borderGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.order-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.order-card-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d3557;
+}
+.order-date {
+  font-size: 13px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.order-summary {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.order-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+}
+.view-order-btn,
+.delete-order-btn {
+  flex: 1;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.view-order-btn {
+  background: #38b000;
+  color: #fff;
+}
+.view-order-btn:hover {
+  background: #2f8a00;
+}
+.delete-order-btn {
+  background: #e63946;
+  color: #fff;
+}
+.delete-order-btn:hover {
+  background: #c53030;
+}
+
+/* ================================
+   Status Badge
+   ================================ */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+.status-placed { background: #dbeafe; color: #1e40af; }
+.status-shipped { background: #fef3c7; color: #92400e; }
+.status-delivered { background: #dcfce7; color: #166534; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+.status-pending { background: #e2e8f0; color: #1e293b; }
+
+/* ================================
+   Modal Content (Sections Only)
+   ================================ */
+.order-section {
+  margin-bottom: 18px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.order-section h3 {
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: 0.3px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #e5e7eb;
+  font-size: 14px;
+}
+.detail-row:last-child {
+  border-bottom: none;
+}
+.detail-row span:first-child {
+  font-weight: 600;
+  color: #334155;
+}
+.detail-row span:last-child {
+  color: #1e293b;
+}
+.detail-row.total span:last-child {
+  font-weight: 700;
+  color: #059669;
+}
+
+/* Items List */
+.items-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px;
+  background: #f8fafc;
+}
+.items-list .detail-row {
+  border-bottom: 1px dashed #e5e7eb;
+}
+.items-list .detail-row:last-child {
+  border-bottom: none;
+}
+.items-list .detail-row span:first-child {
+  width: 65%;
+}
+.items-list .detail-row span:last-child {
+  width: 30%;
+  text-align: right;
+}
+
+/* Payment + Comments */
+.payment-box,
+.comments-box {
+  border: 1px solid #e5e7eb;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+/* ================================
+   Progress Bar
+   ================================ */
+.progress-bar {
+  margin-top: 18px;
+}
+.progress-line {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+.progress-line-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  transition: width 0.5s ease;
+}
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.progress-steps .step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  color: #64748b;
+  font-weight: 500;
+}
+.progress-steps .step.completed {
+  color: #059669;
+}
+.progress-steps .step.active {
+  color: #2563eb;
+  font-weight: 700;
+}
+.progress-steps .step.completed::before {
+  content: "✔";
+  display: block;
+  margin: 0 auto 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #059669;
+  color: #fff;
+  line-height: 22px;
+  font-size: 12px;
+}
+.progress-steps .step.active::before {
+  content: "";
+  display: block;
+  margin: 0 auto 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+/* ================================
+   Dark Mode Styling
+   ================================ */
+body.dark .orders-title {
+  color: #93c5fd;
+}
+body.dark .order-card {
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 1px solid #334155;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+body.dark .order-card-header h3 {
+  color: #e2e8f0;
+}
+body.dark .order-date {
+  color: #94a3b8;
+}
+body.dark .order-summary {
+  color: #f1f5f9;
+}
+
+/* Dark Status Badges */
+body.dark .status-placed { background: #1e3a8a; color: #bfdbfe; }
+body.dark .status-shipped { background: #78350f; color: #fde68a; }
+body.dark .status-delivered { background: #064e3b; color: #6ee7b7; }
+body.dark .status-cancelled { background: #7f1d1d; color: #fecaca; }
+body.dark .status-pending { background: #334155; color: #e2e8f0; }
+
+/* Dark Modal Content */
+body.dark .order-section {
+  background: #1f2937;
+  border-color: #374151;
+}
+body.dark .order-section h3 {
+  color: #60a5fa;
+}
+body.dark .detail-row span:first-child {
+  color: #93c5fd;
+}
+body.dark .detail-row span:last-child {
+  color: #f1f5f9;
+}
+body.dark .items-list {
+  background: #111827;
+  border-color: #374151;
+}
+body.dark .items-list .detail-row {
+  border-bottom: 1px dashed #475569;
+}
+body.dark .payment-box,
+body.dark .comments-box {
+  background: #111827;
+  border-color: #374151;
+  color: #f1f5f9;
+}
+
+/* Dark Progress Bar */
+body.dark .progress-line {
+  background: #374151;
+}
+body.dark .progress-line-fill {
+  background: linear-gradient(90deg, #60a5fa, #2563eb);
+}
+body.dark .progress-steps .step.active {
+  color: #60a5fa;
+}
+body.dark .progress-steps .step.completed {
+  color: #34d399;
 }

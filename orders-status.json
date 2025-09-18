@@ -1,0 +1,15 @@
+[
+  {
+    "OrderID": "JCR547719",
+    "status": "Shipped",
+    "courierId": "SRC1345",
+    "comments": "Will be delivered in 2 days",
+    "payment": {
+      "mode": "GPay",
+      "id": "TXN123456789",
+      "date": "2025-09-13T10:30:00Z",
+      "amount": "5000",
+      "remaining": "NA"
+    }
+  }
+]

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JeyCrakers | Cart</title>
+  <title>JeyCrakers | Summary</title>
   <link rel="stylesheet" href="app.css" />
-  <link rel="stylesheet" href="cart.css" />
+  <link rel="stylesheet" href="summary.css" />
 </head>
 <body>
   <header>
@@ -21,14 +21,13 @@
 <div id="sidebar" class="sidebar">
   <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
   <ul>
- <!--  <li><a href="home.html#home"><img src="icons/home.png" alt="Home" class="sidebar-icon">Home</a></li>
-  <li><a href="home.html#profile"><img src="icons/profile.png" alt="Profile" class="sidebar-icon">Profile</a></li> -->
+  <li><a href="home.html#home"><img src="icons/home.png" alt="Home" class="sidebar-icon">Home</a></li>
+  <li><a href="home.html#profile"><img src="icons/profile.png" alt="Profile" class="sidebar-icon">Profile</a></li>
   <li><a href="home.html#orders"><img src="icons/orders.png" alt="Orders" class="sidebar-icon">Your Orders</a></li>
   <li><a href="home.html#contact"><img src="icons/contactus.png" alt="Contact" class="sidebar-icon">Contact Us</a></li>
   <li><a href="home.html#settings"><img src="icons/settings.png" alt="Settings" class="sidebar-icon">Settings</a></li>
   <li><a href="#" id="logout-btn"><img src="icons/logout.png" alt="Logout" class="sidebar-icon">Logout</a></li>
 </ul>
- 
 </div>
 
   </header>
@@ -167,20 +166,78 @@
     </div>
   </div>
   
-<!-- Coupon Modal -->
-<div id="coupon-modal" class="modal-overlay-cart">
-  <div class="modal-content-cart" id="coupon-modal-content-cart">
-    <div class="modal-header-cart">
-      <h2>Apply Coupon</h2>
-      <button id="close-coupon-btn" class="modal-close-cart">&times;</button>
+<main>
+  <div class="summary-container" id="summary-container">
+    <h2>Order Summary</h2>
+
+    <section class="profile-summary">
+      <h3>Profile</h3>
+      <p><strong>Name:</strong> <span id="summary-name"></span></p>
+      <p><strong>Mobile:</strong> <span id="summary-mobile"></span></p>
+      <p><strong>Email:</strong> <span id="summary-email"></span></p>
+    </section>
+
+    <section class="address-summary">
+      <h3>Delivery Address</h3>
+      <p id="summary-address"></p>
+    </section>
+
+    <section class="cart-summary">
+      <h3>Products</h3>
+      <div id="summary-cart-items"></div>
+    </section>
+
+    <section class="total-summary">
+      <h3>Total</h3>
+      <div class="total-line"><span>Subtotal:</span> <span id="summary-subtotal"></span></div>
+      <div class="total-line"><span>Platform Fee:</span> <span id="summary-platform"></span></div>
+      <div class="total-line"><span>Delivery Charge:</span> <span id="summary-delivery"></span></div>
+      <div class="total-line discount" id="summary-discount-line" style="display:none;">
+        <span>Discount:</span> <span id="summary-discount"></span>
+      </div>
+      <hr>
+      <div class="total-line"><strong>Total:</strong> <strong id="summary-total"></strong></div>
+    </section>
+
+    <section class="order-info">
+      <p>ℹ️ Once the order is placed, our executive team will contact you for payment.  
+      After payment is confirmed, the products will be shipped.  
+      <br><br>Payment is <strong>optional</strong> through QR (for advance payment).  
+      </p>
+      <div class="order-links">
+        <button id="qr-btn">View QR Code</button>
+        <button id="terms-btn">Terms & Conditions</button>
+      </div>
+    </section>
+  </div>
+  
+  <div id="custom-alert" class="custom-alert hidden">
+  <div class="custom-alert-box">
+    <span id="alert-close" class="alert-close">&times;</span>
+    <h3 id="alert-title"></h3>
+    <p id="alert-message"></p>
+    <div class="alert-buttons">
+      <button id="alert-ok-btn" class="confirm-btn">OK</button>
+      <button id="alert-cancel-btn" class="cancel-btn hidden">Cancel</button>
     </div>
-    <div class="modal-body-cart">
-      <input type="text" id="coupon-code" placeholder="Enter promo code" />
-      <button id="submit-coupon-btn" class="apply-btn">Apply</button>
-      <p class="hint">Hint: Try <strong>NEWUSER50</strong>, <strong>SAVE20</strong></p>
+  </div>
+</main>
+
+
+<!-- QR Overlay -->
+<div class="modal-overlay qr-modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Payment QR Code (Optional)</h2>
+      <button class="modal-close">&times;</button>
     </div>
-    <div class="modal-footer-cart"></div>
-    <div id="coupon-success" class="success-animation hidden"></div>
+    <div class="modal-body">
+      <img src="icons/qr-sample.png" alt="QR Code" class="qr-img"/>
+      <p>Scan this QR code for advance payment (optional).</p>
+    </div>
+    <div class="modal-footer">
+      
+    </div>
   </div>
 </div>
 
@@ -197,68 +254,67 @@
     </div>
   </div>
 </div>
-  
-  <main>
-    <div id="cart-section" class="cart-container">
-      <div class="cart-header">
-  <h2>Your Cart</h2>
-  <img src="icons/deletecart.png" alt="DeleteCart" class="delete-cart" id="delete-cart-btn" />
-</div>
-      <div id="cart-items"></div>
+
+<!-- Terms & Conditions Overlay -->
+<div class="modal-overlay terms-modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Terms & Conditions</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body scrollable-content">
+      <ul>
+        <li>✅ Once shipped, an order ID and tracking details will be shared.</li>
+        <li>✅ Orders cannot be cancelled once the shipment is done.</li>
+        <li>✅ If you want to cancel before shipment, please contact our customer care immediately.</li>
+        <li>✅ Payment can be made upon delivery (COD) or optionally in advance.</li>
+        <li>✅ Shipping timelines may vary depending on your location and festive demand.</li>
+        <li>✅ Damaged or defective items must be reported within 24 hours of delivery.</li>
+        <li>✅ Please read our return & refund policy before ordering.</li>
+      </ul>
+    </div>
+    <div class="modal-footer">
       
-      <div class="summary" id="summary-section">
-        <div class="total-line"><span>Subtotal:</span><span id="subtotal">₹0.00</span></div>
-        <div class="total-line"><span>Platform Fee:</span><span id="platform-fee">₹0.00</span></div>
-        <div class="total-line"><span>Delivery Charge:</span><span id="delivery-charge">₹0.00</span></div>
-        <div class="total-line discount" id="discount-line" style="display:none;"><span>Discount:</span><span id="discount-amount">-₹0.00</span></div>
-        <hr>
-        <div class="total-line"><strong>Total:</strong><strong id="total">₹0.00</strong></div>
-      </div>
-     
-      <div id="empty-cart" class="empty-cart-container hidden">
-  <img src="img/deletedcart.png" alt="Empty Cart" />
-  <p>Your cart is empty.</p>
-<!--    <button id="go-home-btn">Go to Home</button>  -->
-</div>
-      
-</div>
-<div id="custom-alert" class="custom-alert hidden">
-  <div class="custom-alert-box">
-    <span id="alert-close" class="alert-close">&times;</span>
-    <h3 id="alert-title"></h3>
-    <p id="alert-message"></p>
-    <div class="alert-buttons">
-      <button id="alert-ok-btn" class="confirm-btn">OK</button>
-      <button id="alert-cancel-btn" class="cancel-btn hidden">Cancel</button>
     </div>
   </div>
-</main>
-  
-<footer>
+</div>
+
+<!-- Footer -->
+<!--  <footer>
   <div class="footer-buttons">
-    <button id="home-btn" class="footer-btn">
-      <img src="icons/home.png" alt="Home" />
-      <span>Home</span>
-     </button>
-    <button id="profile-btn" class="footer-btn">
-      <img src="icons/profile.png" alt="Search" />
-      <span>Profile</span>
-    </button>
-    <button id="footer-applycoupon-btn" class="footer-btn">
-      <img src="icons/applycoupon.png" alt="Apply Coupon" />
-      <span>Apply Coupon</span>
-    </button>   
-    <button id="footer-next-btn" class="footer-btn">
-      <img src="icons/next.png" alt="Next Page" />
-      <span>Next</span>
+    <button id="place-order-btn" class="footer-btn place-btn">
+      <img src="icons/ordernow.png" alt="Confirm" />
     </button>
   </div>
+</footer>  -->
+
+<footer>
+  <div class="footer-buttons">
+    <div class="swipe-container" id="swipe-container">
+      <div class="swipe-track" id="swipe-track">
+        <div class="swipe-thumb" id="swipe-thumb">
+          <img id="swipe-icon" src="icons/swipe.gif" alt="Swipe" />
+        </div>
+        <span class="swipe-text" id="swipe-text">Swipe to Confirm</span>
+      </div>
+    </div>
+  </div>
 </footer>
-        
-  
+
+<!-- Order Confirmation Screen -->
+<div id="order-confirmation" class="hidden confirmation-screen">
+  <div class="confirmation-content">
+    <h2 class="animate-pop">🎉 Order Confirmed!</h2>
+    <p>Your order has been placed successfully.</p>
+    <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+    <button id="back-home-btn">Back to Home</button>
+  </div>
+<canvas id="confettiCanvas"></canvas>
+
+</div>
 
   <script src="framework.js"></script>
-  <script src="cart.js"></script>
+  <script src="summary.js"></script>
   <script src="app.js"></script>
  
 </body>

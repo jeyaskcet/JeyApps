@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuBtn = document.getElementById('menu-btn');
   const homeBtn = document.getElementById('home-btn');
   const logoutBtn = document.getElementById('logout-btn');
-  const yourOrdersBtn = document.querySelector('a[href="#"] img[alt="Orders"]')?.parentElement;
   const settingsBtn = document.querySelector('a[href="#"] img[alt="Settings"]')?.parentElement;
   const ContactUsBtn = document.querySelector('a[href="#"] img[alt="Contact"]')?.parentElement;
   const profileBtn = document.getElementById('profile-btn');
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const productsList = document.getElementById("products-list");
   const ContactSection = document.getElementById("contactSection");
   const productStatus = document.getElementById('product-status');
-  const ordersSection = document.getElementById("orders-section");
 
   const nameInput = document.getElementById('profile-name');
   const mobileInput = document.getElementById('profile-mobile');
@@ -93,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ContactSection?.classList.add("hidden");
     settingsSection?.classList.add("hidden");
     cartSection?.classList.add("hidden");
-    ordersSection?.classList.add("hidden");
     MyFramework.log('Profile section shown');
   });
 
@@ -146,21 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const storedTheme = localStorage.getItem('theme');
   if (storedTheme === 'dark') document.body.classList.add('dark-mode');
-  
- 
-  yourOrdersBtn?.addEventListener("click", e => {
-      e.preventDefault();
-      loadOrders();
-      statusElem?.classList.add("hidden")
-    profileSection?.classList.add("hidden");
-    productsList?.classList.add("hidden");
-    ContactSection?.classList.add("hidden");
-    cartSection?.classList.add("hidden");
-    if (productStatus) productStatus.style.display = 'none';
-   ContactSection.classList.add("hidden"); settingsSection.classList.add("hidden");
-    sidebar?.classList.remove("open");
-     
-    });
 
   settingsBtn?.addEventListener("click", (e) => {
     e.preventDefault();
@@ -169,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
     productsList?.classList.add("hidden");
     ContactSection?.classList.add("hidden");
     cartSection?.classList.add("hidden");
-    ordersSection?.classList.add("hidden");
     if (productStatus) productStatus.style.display = 'none';
     settingsSection.classList.remove("hidden");
     sidebar?.classList.remove("open");
@@ -182,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
     productsList?.classList.add("hidden");
     settingsSection?.classList.add("hidden");
     cartSection?.classList.add("hidden");
-    ordersSection?.classList.add("hidden");
     if (productStatus) productStatus.style.display = 'none';
     ContactSection.classList.remove("hidden");
     sidebar?.classList.remove("open");
@@ -309,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sectionMap = {
     "#home": "products-list",
     "#profile": "profile-section",
-    "#orders": "orders-section",   // adjust to your actual orders section
+    "#orders": "cart-section",   // adjust to your actual orders section
     "#contact": "contactSection",
     "#settings": "settings-section"
   };
@@ -318,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash || "#home";
 
     // Hide all main sections first
-    document.querySelectorAll("#products-list, #profile-section, #orders-section, #contactSection, #settings-section")
+    document.querySelectorAll("#products-list, #profile-section, #cart-section, #contactSection, #settings-section")
       .forEach(el => el.classList.add("hidden"));
 
     // Hide product-status-wrapper by default
@@ -336,10 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
           statusWrapper.style.display = "block";
         }
 
-// Load orders when we land on #orders
-      if (hash === "#orders") {
-        loadOrders();
-      }
         MyFramework.log(`Navigated to ${hash} section`);
       }
     }
@@ -459,22 +435,19 @@ function showLoading() {
 
 
 /* ================================
-   Your Orders Module (Using existing HTML container)
+   Your Orders Module
    ================================ */
 
 function loadOrders() {
   MyFramework.log("INFO", "[Orders] Loading orders...");
 
-  // Use the existing container from HTML
-  const ordersContainer = document.getElementById("orders-section");
+  // Remove existing orders section if present
+  const oldSection = document.getElementById("orders-section");
+  if (oldSection) oldSection.remove();
 
-  if (!ordersContainer) {
-    MyFramework.log("ERROR", "[Orders] #orders-section not found in DOM.");
-    return;
-  }
-
-  // Reset content
-  ordersContainer.innerHTML = "";
+  const ordersContainer = document.createElement("div");
+  ordersContainer.id = "orders-section";
+  ordersContainer.className = "orders-container";
 
   const title = document.createElement("h2");
   title.className = "orders-title";
@@ -488,7 +461,7 @@ function loadOrders() {
 
   if (orders.length === 0) {
     ordersContainer.innerHTML += `<p class="no-orders">No orders found.</p>`;
-    ordersContainer.classList.remove("hidden"); // show section
+    document.body.appendChild(ordersContainer);
     return;
   }
 
@@ -546,21 +519,10 @@ function loadOrders() {
         }
 
         if (statusObj) {
-  const status = statusObj.status.toLowerCase();
-  let statusClass = "";
-
-  if (status.includes("shipped")) statusClass = "status-shipped";
-  else if (status.includes("delivered")) statusClass = "status-delivered";
-  else if (status.includes("placed")) statusClass = "status-placed";
-  else if (status.includes("cancel")) statusClass = "status-cancelled";
-  else statusClass = "status-pending";
-
-  orderCard.querySelector(".order-status").innerHTML =
-    `<span class="status-badge ${statusClass}">${statusObj.status}</span>`;
-} else {
-  orderCard.querySelector(".order-status").innerHTML =
-    `<span class="status-badge status-pending">Pending</span>`;
-}
+          orderCard.querySelector(".order-status").textContent = statusObj.status;
+        } else {
+          orderCard.querySelector(".order-status").textContent = "Pending";
+        }
       })
       .catch(err => {
         MyFramework.log("ERROR", "[Orders] Could not fetch order status", err);
@@ -568,148 +530,28 @@ function loadOrders() {
       });
   });
 
-  // Finally show the section
-  ordersContainer.classList.remove("hidden");
+  document.body.appendChild(ordersContainer);
 }
 
 /* ================================
-   Open Order Modal (uses static HTML)
+   Modal for Order Details
    ================================ */
+
 function openOrderModal(order) {
-  const modalOverlay = document.getElementById("order-details-modal");
-  const modalTitle = document.getElementById("order-details-title");
-  const modalBody = document.getElementById("order-details-body");
-
-  if (!modalOverlay || !modalTitle || !modalBody) {
-    MyFramework.log("ERROR", "[Orders] Modal elements not found.");
-    return;
-  }
-
-  // Set title
-  modalTitle.textContent = `Order Details - ${order.id}`;
-
-  // Fill body with order details
-  modalBody.innerHTML = `
-    <div class="order-section">
-      <h3>Contact Details</h3>
-      <div class="detail-row"><span>Name:</span><span>${order.name}</span></div>
-      <div class="detail-row"><span>Mobile:</span><span>${order.mobile}</span></div>
-      <div class="detail-row"><span>Email:</span><span>${order.email || "N/A"}</span></div>
-    </div>
-
-    <div class="order-section">
-      <h3>Delivery Address</h3>
-      <p>${order.address}</p>
-    </div>
-
-    <div class="order-section">
-      <h3>Order Summary</h3>
-      <div class="detail-row"><span>Subtotal:</span><span>${order.subtotal}</span></div>
-      <div class="detail-row"><span>Discount:</span><span>${order.discount}</span></div>
-      <div class="detail-row"><span>Platform Fee:</span><span>${order.platform}</span></div>
-      <div class="detail-row"><span>Delivery Fee:</span><span>${order.delivery}</span></div>
-      <div class="detail-row total"><span>Total:</span><span>${order.total}</span></div>
-    </div>
-
-    <div class="order-section">
-      <h3>Items</h3>
-      <div class="items-list">${order.items}</div>
-    </div>
-
-    <div class="order-section">
-      <h3>Payment Details</h3>
-      <div id="payment-info" class="payment-box">Loading...</div>
-    </div>
-
-    <div class="order-section">
-      <h3>Comments</h3>
-      <div id="order-comments" class="comments-box">Loading...</div>
-    </div>
-
-    <div class="order-section">
-      <h3>Courier Details</h3>
-      <p id="courier-info">Loading...</p>
-    </div>
-
-    <div class="order-section">
-      <h3>Order Progress</h3>
-      <div class="progress-bar">
-        <div class="progress-line"><div class="progress-line-fill"></div></div>
-        <div class="progress-steps">
-          <div class="step">Placed</div>
-          <div class="step">Payment</div>
-          <div class="step">Shipped</div>
-          <div class="step">On the way</div>
-          <div class="step">Delivered</div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Show modal
-  modalOverlay.classList.remove("hidden");
-  modalOverlay.style.display = "flex";
-
-  // Close button
-  modalOverlay.querySelector(".order-close-btn").addEventListener("click", () => {
-    modalOverlay.classList.add("hidden");
-  });
-
-  // Fetch extra details (status, payment, comments, courier)
-  fetch("orders-status.json")
-    .then(res => res.json())
-    .then(statusData => {
-      let statusObj;
-      if (Array.isArray(statusData)) {
-        statusObj = statusData.find(o => o.OrderID === order.id);
-      } else if (statusData.OrderID === order.id) {
-        statusObj = statusData;
-      }
-
-      if (statusObj) {
-        updateProgressBar(statusObj.status);
-
-        document.getElementById("courier-info").textContent =
-          `Courier ID: ${statusObj.courierId || "N/A"}`;
-
-        document.getElementById("order-comments").textContent =
-          statusObj.comments || "No comments";
-
-        if (statusObj.payment) {
-          document.getElementById("payment-info").innerHTML = `
-            <div class="detail-row"><span>Payment Mode:</span><span>${statusObj.payment.mode || "N/A"}</span></div>
-            <div class="detail-row"><span>Payment ID:</span><span>${statusObj.payment.id || "N/A"}</span></div>
-            <div class="detail-row"><span>Date of Payment:</span><span>${statusObj.payment.date ? new Date(statusObj.payment.date).toLocaleString() : "N/A"}</span></div>
-            <div class="detail-row"><span>Payment Amount:</span><span>${statusObj.payment.amount || "N/A"}</span></div>
-            <div class="detail-row"><span>Remaining Amount:</span><span>${statusObj.payment.remaining || "N/A"}</span></div>
-          `;
-        }
-      }
-    })
-    .catch(err => {
-      MyFramework.log("ERROR", "[Orders] Could not fetch order details", err);
-    });
-}
-
-/* ================================
-   Modal for Order Details - old
-   ================================ */
-
-function openOrderModal1(order) {
   const oldModal = document.getElementById("order-details-modal");
   if (oldModal) oldModal.remove();
 
   const modalOverlay = document.createElement("div");
   modalOverlay.id = "order-details-modal";
-  modalOverlay.className = "modal-overlay order-details-modal";
+  modalOverlay.className = "modal-overlay active";
 
   modalOverlay.innerHTML = `
-    <div class="modal-content">
+    <div class="modal-content order-details-modal">
       <div class="modal-header">
         <h2>Order Details - ${order.id}</h2>
         <button class="modal-close">&times;</button>
       </div>
-      <div class="modal-body scrollable-content">
+      <div class="modal-body">
 
         <div class="order-section">
           <h3>Contact Details</h3>
@@ -770,8 +612,7 @@ function openOrderModal1(order) {
     </div>
   `;
 
-//modalOverlay.style.display = 'flex';
- document.body.appendChild(modalOverlay);
+  document.body.appendChild(modalOverlay);
 
   modalOverlay.querySelector(".modal-close").addEventListener("click", () => {
     modalOverlay.remove();
@@ -838,3 +679,16 @@ function updateProgressBar(status) {
   }
 }
 
+/* ================================
+   Initialize on "Your Orders" click
+   ================================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const ordersBtn = document.querySelector("#sidebar a[href*='orders']");
+  if (ordersBtn) {
+    ordersBtn.addEventListener("click", e => {
+      e.preventDefault();
+      loadOrders();
+    });
+  }
+});

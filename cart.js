@@ -9,21 +9,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalElem = document.getElementById('total');
   const discountLine = document.getElementById('discount-line');
   const discountAmountElem = document.getElementById('discount-amount');
-  const goToHomepageBtn = document.getElementById('go-to-homepage-btn');
   const applyCouponBtn = document.getElementById('footer-applycoupon-btn');
   const couponModal = document.getElementById('coupon-modal');
   const submitCouponBtn = document.getElementById('submit-coupon-btn');
-  const modalContent = document.getElementById('coupon-modal-content');
   const summarySection = document.getElementById('summary-section');
-  const dynamicGoToHomepageBtn = document.getElementById('go-to-homepage-btn');
   const previousBtn = document.getElementById('footer-previous-btn'); 
   const nextBtn = document.getElementById('footer-next-btn');
 
   let cart = JSON.parse(localStorage.getItem('cart')) || {};
   MyFramework.log("Cart loaded from localStorage:", cart);
 
+  // Coupon state
+  let discount = 0;
+  let couponApplied = "";
+
+  // Restore saved coupon if exists
+  const savedCoupon = JSON.parse(localStorage.getItem('appliedCoupon'));
+  if (savedCoupon) {
+    discount = savedCoupon.discount;
+    couponApplied = savedCoupon.code;
+    MyFramework.log("Restored saved coupon:", savedCoupon);
+  }
+
   function calculateCartTotal() {
-    MyFramework.log("Calculating cart total...");
     let total = 0;
     const cart = JSON.parse(localStorage.getItem('cart') || '{}');
     const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts') || '[]');
@@ -35,60 +43,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    MyFramework.log("Cart total calculated:", total);
     return total;
   }
 
-  let discount = 0;
-  let couponApplied = "";
+  // Helper: update Apply Coupon button UI
+  function updateCouponButton() {
+    const img = applyCouponBtn.querySelector("img");
+    const span = applyCouponBtn.querySelector("span");
 
-  if (Object.keys(cart).length === 0) {
-    MyFramework.log("Cart is empty. Showing empty cart message.");
-    cartItemsContainer.innerHTML = '';
-
-    const emptyCartMessage = document.createElement('div');
-    emptyCartMessage.classList.add('empty-cart-message');
-
-    emptyCartMessage.innerHTML = ``;
-      document.getElementById("empty-cart").classList.remove("hidden");
-
-    cartItemsContainer.appendChild(emptyCartMessage);
-
-    subtotalElem.textContent = '₹0.00';
-    platformFeeElem.textContent = '₹0.00';
-    deliveryChargeElem.textContent = '₹0.00';
-    totalElem.textContent = '₹0.00';
-    discountLine.style.display = 'none';
-    
-    if (summarySection) { 
-summarySection.style.display = 'none';
-} else {
-  if (summarySection) summarySection.style.display = 'block';
-}
-
-    return;
-    
-    if (dynamicGoToHomepageBtn) {
-      dynamicGoToHomepageBtn.addEventListener('click', () => {
-        MyFramework.log("User clicked Go to Homepage from empty cart state");
-        window.location.href = 'home.html';
-      });
+    if (couponApplied) {
+      span.textContent = "Change Coupon";
+      img.src = "icons/couponapplied.png"; // ✅ green tick icon
+    } else {
+      span.textContent = "Apply Coupon";
+      img.src = "icons/applycoupon.png";
     }
   }
 
-if (previousBtn) {
-    previousBtn.addEventListener('click', () => {
-      window.location.href = 'home.html';
-    });
-  }
-  
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      window.location.href = 'next.html';
-    });
-  }
-
-
+  // Render Cart
   function renderCart() {
     MyFramework.log("Rendering cart...");
     cartItemsContainer.innerHTML = '';
@@ -122,7 +94,6 @@ if (previousBtn) {
             </div>
           </div>
         `;
-
         cartItemsContainer.appendChild(item);
         subtotal += product.price * quantity;
       }
@@ -132,17 +103,38 @@ if (previousBtn) {
     platformFeeElem.textContent = `₹${platformFee.toFixed(2)}`;
     deliveryChargeElem.textContent = `₹${deliveryFee.toFixed(2)}`;
     totalElem.textContent = `₹${(subtotal + platformFee + deliveryFee - discount).toFixed(2)}`;
-    discountAmountElem.textContent = `-₹${discount.toFixed(2)}`;
-    discountLine.style.display = discount > 0 ? 'block' : 'none';
 
-    MyFramework.log("Cart UI updated with new values");
+    if (discount > 0 && couponApplied) {
+      discountLine.style.display = 'flex';
+      discountLine.innerHTML = `
+        <span>Discount (${couponApplied}):</span>
+        <span>
+          -₹${discount.toFixed(2)} 
+          <button id="remove-coupon-btn" class="remove-coupon-btn">❌</button>
+        </span>
+      `;
 
+      // Delete coupon logic
+      document.getElementById("remove-coupon-btn").addEventListener("click", () => {
+        MyFramework.log("Coupon removed");
+        discount = 0;
+        couponApplied = "";
+        localStorage.removeItem("appliedCoupon");
+        updateCouponButton();
+        renderCart();
+      });
+    } else {
+      discountLine.style.display = 'none';
+    }
+
+    updateCouponButton();
+
+    // Quantity buttons
     document.querySelectorAll('.increase-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.dataset.id;
         cart[id] = (cart[id] || 0) + 1;
         localStorage.setItem('cart', JSON.stringify(cart));
-        MyFramework.log(`Increased quantity for product ID: ${id}`);
         renderCart();
       });
     });
@@ -152,12 +144,11 @@ if (previousBtn) {
         const id = e.target.dataset.id;
         if (cart[id] > 1) {
           cart[id] -= 1;
-          MyFramework.log(`Decreased quantity for product ID: ${id}`);
         } else {
           delete cart[id];
+          const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
           const updatedProducts = selectedProducts.filter(p => p.id !== id);
-          localStorage.setItem('SelectedProducts', JSON.stringify(updatedProducts));
-          MyFramework.log(`Removed product ID: ${id} from cart and SelectedProducts`);
+          localStorage.setItem('selectedProducts', JSON.stringify(updatedProducts));
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         renderCart();
@@ -167,26 +158,16 @@ if (previousBtn) {
 
   renderCart();
 
+  // Coupon modal handling
   if (applyCouponBtn) {  
     applyCouponBtn.addEventListener('click', () => {
       couponModal.style.display = 'flex';
-      MyFramework.log("Coupon modal opened");
     });
-
-    if (couponModal) {
-      couponModal.addEventListener('click', (e) => {
-        if (e.target === couponModal) {
-          couponModal.style.display = 'none';
-          MyFramework.log("Coupon modal closed by clicking outside");
-        }
-      });
-     }
 
     const closeCouponBtn = document.getElementById('close-coupon-btn');
     if (closeCouponBtn) {
       closeCouponBtn.addEventListener('click', () => {
         couponModal.style.display = 'none';
-        MyFramework.log("Coupon modal closed via close button");
       });
     }
 
@@ -194,8 +175,6 @@ if (previousBtn) {
       const code = document.getElementById('coupon-code').value.trim().toUpperCase();
       const cartTotal = parseFloat(calculateCartTotal());
       const successMessageElem = document.getElementById('coupon-success');
-
-      MyFramework.log(`Submitting coupon code: ${code}`);
 
       discount = 0;
       couponApplied = "";
@@ -207,13 +186,11 @@ if (previousBtn) {
         .then(offers => {
           const offer = offers.find(o => o.code.toUpperCase() === code);
           if (!offer) {
-            MyFramework.log("Invalid coupon code submitted");
             showCustomAlert("Invalid coupon code.");
             return;
           }
 
           if (cartTotal < offer.minPurchase) {
-            MyFramework.log(`Coupon code requires minimum ₹${offer.minPurchase}, but only ₹${cartTotal} in cart`);
             showCustomAlert(`Minimum purchase of ₹${offer.minPurchase} required.`);
             return;
           }
@@ -223,67 +200,66 @@ if (previousBtn) {
             ? Math.min(calculatedDiscount, offer.maxDiscount)
             : calculatedDiscount;
 
-          MyFramework.log(`Coupon applied successfully. Discount: ₹${discount.toFixed(2)}`);
-          discountAmountElem.textContent = `-₹${discount.toFixed(2)}`;
-          couponApplied = offer.description;
-          renderCart();
+          couponApplied = offer.code.toUpperCase();
+          localStorage.setItem("appliedCoupon", JSON.stringify({ code: couponApplied, discount }));
 
           successMessageElem.textContent = `You saved ₹${discount.toFixed(2)}!`;
           successMessageElem.classList.remove('hidden');
+
+          renderCart();
 
           setTimeout(() => {
             couponModal.style.display = 'none';
             successMessageElem.classList.add('hidden');
           }, 1500);
         })
-        .catch(error => {
-          MyFramework.log("Error fetching coupon offers:", error);
+        .catch(() => {
           showCustomAlert("Failed to validate coupon. Please try again.");
         });
     });
   }
 
+  // Navigation buttons
+  if (previousBtn) {
+    previousBtn.addEventListener('click', () => {
+      window.location.href = 'home.html';
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      window.location.href = 'summary.html';
+    });
+  }
+
+  // Delete cart
   if (deleteCartBtn) {
     deleteCartBtn.addEventListener('click', () => {
-      MyFramework.log("User clicked Delete Cart button");
-
       showCustomAlert(
         "Are you sure?",
         "Do you really want to delete your cart?",
         "Confirm",
         () => {
-          MyFramework.log("User confirmed cart deletion");
-
           localStorage.removeItem('cart');
           localStorage.removeItem('selectedProducts');
-          MyFramework.log("Cart and selectedProducts removed from localStorage");
+          localStorage.removeItem('appliedCoupon');
 
-cartItemsContainer.innerHTML = ``;
-
-document.getElementById("empty-cart").classList.remove("hidden");
+          cartItemsContainer.innerHTML = ``;
+          document.getElementById("empty-cart").classList.remove("hidden");
 
           subtotalElem.textContent = '₹0.00';
           platformFeeElem.textContent = '₹0.00';
           deliveryChargeElem.textContent = '₹0.00';
-          totalElem.textContent = '$0.00';
+          totalElem.textContent = '₹0.00';
           discountAmountElem.textContent = '-₹0.00';
           discountLine.style.display = 'none';
-          if (summarySection) { 
-summarySection.style.display = 'none';
-} else {
-  if (summarySection) summarySection.style.display = 'block';
-}
 
-          MyFramework.log("UI reset to empty cart state");
+          if (summarySection) summarySection.style.display = 'none';
 
-          
+          MyFramework.log("Cart cleared and UI reset");
         },
-        true,
-        () => {
-          MyFramework.log("User cancelled cart deletion");
-        }
+        true
       );
     });
   }
 });
-

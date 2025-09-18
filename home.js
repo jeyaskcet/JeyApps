@@ -52,7 +52,7 @@ updateCartUI();
       MyFramework.log('Failed to load products');
     });
 
-let categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6', 'All'];
+let categories = ['மத்தாப்பு & சாட்டை', 'வெடி வகைகள்', 'சக்கரம் & பூச்சட்டி', 'பேன்சி வெடி வகைகள்', 'வான வெடிகள்', 'பைப் ரக வான வெடிகள்', 'All'];
 
 function renderCategories() {
   const container = document.getElementById('category-filters');
@@ -283,13 +283,6 @@ if (cartBtnFooter) {
 }
 
 
-
-document.querySelectorAll('.modal-close').forEach(btn => {
-  btn.addEventListener('click', () => {
-  btn.closest('.modal-overlay').style.display = 'none';
-    MyFramework.log('Closed modal');
-  });
-});
   applyFilterBtn.addEventListener('click', () => {
   const selected = Array.from(filterOptions.querySelectorAll('input[type="checkbox"]:checked'))
     .map(cb => cb.value);

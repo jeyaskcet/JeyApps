@@ -132,6 +132,11 @@
     </div>
     </div> 
     
+    <div id="cart-section" class="cart-container hidden">
+        </div>
+        <div id="orders-section" class="orders-container hidden">
+        </div>   
+    
     <div id="settings-section" class="settings-section hidden">
   <div class="settings-page">
     <h2>Settings</h2>
@@ -244,6 +249,20 @@
     </div>
     <div class="modal-footer">
       <button id="open-cart-btn" class="checkout">Go to Cart</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div id="order-details-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="order-details-title">Order Details</h2>
+      <button class="modal-close order-close-btn">&times;</button>
+    </div>
+    <div class="modal-body scrollable-content" id="order-details-body">
+      <!-- Order details will be injected dynamically -->
+      
     </div>
   </div>
 </div>

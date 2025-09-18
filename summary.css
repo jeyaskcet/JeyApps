@@ -1,0 +1,345 @@
+/* ==========================
+   Summary Container
+========================== */
+.summary-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.summary-container h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  letter-spacing: 1px;
+}
+
+.summary-container section {
+  margin-bottom: 2rem;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  background: #fdfdfd;
+  border: 1px solid #e0e6ed;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-container section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.summary-container h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  color: #34495e;
+  border-bottom: 2px solid #3498db;
+  display: inline-block;
+  padding-bottom: 0.2rem;
+}
+
+/* ==========================
+   Summary Items
+========================== */
+.profile-summary p,
+.address-summary p,
+.cart-summary p,
+.total-summary .total-line {
+  margin: 0.4rem 0;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #dfe6ee;
+  padding: 0.4rem 0;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+/* ==========================
+   Total Summary
+========================== */
+.total-summary {
+  background: #f0f6ff;
+  border: 1px solid #c8daf7;
+}
+
+.total-summary .total-line strong {
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+.total-summary hr {
+  margin: 0.8rem 0;
+  border: none;
+  border-top: 1px solid #cbd5e0;
+}
+
+.discount {
+  color: #27ae60;
+}
+
+/* ==========================
+   Actions
+========================== */
+.actions {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.actions button {
+  background: #3498db;
+  color: #fff;
+  font-size: 1.1rem;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.actions button:hover {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+
+.actions button:active {
+  transform: scale(0.97);
+}
+
+/* ==========================
+   Dark Mode
+========================== */
+body.dark-mode {
+  background: #121212;
+  color: #e0e6ed;
+}
+
+body.dark-mode .summary-container {
+  background: #1e1e1e;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode .summary-container h2 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .summary-container section {
+  background: #222;
+  border: 1px solid #333;
+}
+
+body.dark-mode .summary-container section:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .summary-container h3 {
+  color: #e0e6ed;
+  border-bottom: 2px solid #4dabf7;
+}
+
+body.dark-mode .summary-item {
+  border-bottom: 1px dashed #444;
+}
+
+body.dark-mode .total-summary {
+  background: #1a2634;
+  border: 1px solid #2a3b50;
+}
+
+body.dark-mode .total-summary .total-line strong {
+  color: #f8fafc;
+}
+
+body.dark-mode .total-summary hr {
+  border-top: 1px solid #444;
+}
+
+body.dark-mode .discount {
+  color: #2ecc71;
+}
+
+body.dark-mode .actions button {
+  background: #4dabf7;
+  box-shadow: 0 4px 12px rgba(77, 171, 247, 0.3);
+}
+
+body.dark-mode .actions button:hover {
+  background: #1e90ff;
+}
+
+/* ==========================
+   Order Info + QR
+========================== */
+.order-info {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+.order-info .note {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+.order-info .note a {
+  color: #3498db;
+  text-decoration: underline;
+}
+.qr-btn {
+  background: #27ae60;
+  color: #fff;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.qr-btn:hover {
+  background: #1e874b;
+}
+
+/* ==========================
+   QR Overlay
+========================== */
+.qr-image { width: 200px; margin: 1rem 0; }
+.qr-note { font-size: 0.9rem; color: #555; }
+
+/* ==========================
+   Confirmation Screen
+========================== */
+.order-confirmation,
+.confirmation-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+.order-confirmation.hidden,
+.confirmation-screen.hidden { display: none; }
+
+.confirmation-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  animation: fadeInScale 0.6s ease;
+}
+.confirmation-content h2 {
+  margin: 0 0 1rem;
+  color: #27ae60;
+}
+.confirmation-content button {
+  margin-top: 1.5rem;
+  background: #4dabf7;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.confirmation-content button:hover {
+  background: #1e90ff;
+}
+
+/* ==========================
+   Animations
+========================== */
+@keyframes fadeInUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeInScale {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================
+   Dark Mode Support (Modals & Confirmation)
+========================== */
+body.dark-mode .confirmation-content {
+  background: #1e1e1e;
+  color: #e0e6ed;
+}
+body.dark-mode .confirmation-content h2 {
+  color: #2ecc71;
+}
+
+.swipe-container {
+  width: 80%;
+  max-width: 350px;
+  margin: 0 auto;
+}
+
+.swipe-track {
+  background: #e5e7eb;
+  border-radius: 50px;
+  height: 50px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.swipe-thumb {
+  width: 50px;
+  height: 50px;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: left 0.2s ease;
+}
+
+.swipe-thumb img {
+  width: 50px;
+  height: 50px;
+}
+
+.swipe-text {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  color: #374151;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.2s ease, color 0.3s ease;
+}
+
+.swipe-track.success {
+  background: #22c55e; /* green */
+}
+
+.swipe-track.success .swipe-text {
+  color: #fff;
+}
+
+#confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 70px); /* exactly match footer height */
+  pointer-events: none;
+  z-index: 9999; /* stays behind footer */
+}
