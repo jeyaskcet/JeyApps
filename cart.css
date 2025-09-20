@@ -183,20 +183,7 @@
   align-items: center;
 }
 
-#discount-line button.remove-coupon-btn {
-  margin-left: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #dc2626;
-  font-size: 14px;
-  transition: transform 0.2s ease;
-}
 
-#discount-line button.remove-coupon-btn:hover {
-  color: #b91c1c;
-  transform: scale(1.1);
-}
 
 /* ==========================
    Empty Cart
@@ -364,13 +351,6 @@
   }
 }
 
-
-/* ==========================
-   Dark Mode
-========================== */
-/* ==========================
-   Dark Mode Fixes (better contrast)
-========================== */
 body.dark-mode .cart-header h2 {
   color: #f9fafb; /* Bright white title */
 }
@@ -457,4 +437,61 @@ body.dark-mode .hint {
 @keyframes slideIn {
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+
+/* ==========================
+   Delete Coupon Button
+========================== */
+.remove-coupon-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.remove-coupon-btn:hover {
+  transform: scale(1.1);
+}
+
+.delete-coupon {
+  width: 16px;   /* keep it small */
+  height: 16px;
+  object-fit: contain;
+  background: transparent; /* ensures no bg */
+  display: inline-block;
+  vertical-align: middle;
+  filter: brightness(0) saturate(100%) invert(31%) sepia(88%) saturate(6241%) hue-rotate(354deg) brightness(93%) contrast(97%);
+  transition: transform 0.2s ease;
+}
+
+.delete-coupon:hover {
+  transform: rotate(15deg) scale(1.15);
+}
+
+.free-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.free-delivery-banner {
+  background: #22c55e;
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.free-delivery-banner.hidden {
+  display: none;
 }

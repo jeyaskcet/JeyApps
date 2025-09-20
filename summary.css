@@ -210,9 +210,117 @@ body.dark-mode .actions button:hover {
 /* ==========================
    QR Overlay
 ========================== */
-.qr-image { width: 200px; margin: 1rem 0; }
-.qr-note { font-size: 0.9rem; color: #555; }
+/* QR image inside modal */
+.qr-modal .modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center horizontally */
+  justify-content: center;
+  padding: 20px;
+}
 
+.qr-modal .qr-img {
+  width: 275px;       /* larger size */
+  height: 275px;
+  object-fit: contain;
+  border: 3px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* QR description text */
+.qr-modal .modal-body p {
+  font-size: 1rem;
+  color: #333;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 90%;
+}
+
+.qr-modal .qr-instruction {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.qr-modal .upi-instruction {
+  text-align: center;
+  font-size: 0.95rem;
+  margin-top: 10px;
+  color: #555;
+}
+
+.qr-modal .upi-copy-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+  gap: 8px;
+}
+
+.qr-modal .upi-copy-container input {
+  font-size: 1rem;
+  padding: 8px 12px;
+  width: 150px;
+  text-align: center;
+  border: 2px solid #1e40af; /* primary color highlight */
+  border-radius: 8px;
+  background-color: #f3f4f6; /* light gray */
+  color: #111827; /* dark text */
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.qr-modal .upi-copy-container input:focus {
+  border-color: #2563eb; /* brighter blue on focus */
+  box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+}
+
+.qr-modal .upi-copy-container img#copy-upi-btn {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* ------------------ Dark Mode ------------------ */
+body.dark-mode .qr-modal .modal-content {
+  background-color: #1f2937; /* dark modal background */
+  color: #f3f4f6; /* default text color */
+}
+
+body.dark-mode .qr-modal .modal-body p {
+  color: #f3f4f6; /* make <p> text visible in dark mode */
+}
+
+body.dark-mode .qr-modal .qr-instruction {
+  color: #f3f4f6;
+}
+
+body.dark-mode .qr-modal .upi-instruction {
+  color: #d1d5db; /* slightly lighter gray for secondary text */
+}
+
+body.dark-mode .qr-modal .upi-copy-container input {
+  background-color: #374151; /* dark input background */
+  color: #f3f4f6; /* light text */
+  border: 2px solid #3b82f6; /* brighter highlight */
+}
+
+body.dark-mode .qr-modal .upi-copy-container input:focus {
+  border-color: #60a5fa; /* lighter blue on focus */
+  box-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+}
+
+/* Optional: remove QR image border for dark mode */
+body.dark-mode .qr-modal .qr-img {
+  border: 3px solid #4b5563; /* subtle border on dark background */
+  background-color: #1f2937; /* match modal background */
+}
 /* ==========================
    Confirmation Screen
 ========================== */
@@ -342,4 +450,53 @@ body.dark-mode .confirmation-content h2 {
   height: calc(100% - 70px); /* exactly match footer height */
   pointer-events: none;
   z-index: 9999; /* stays behind footer */
+}
+
+.order-links {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.order-links-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px; /* smaller gap between button and text */
+  margin-top: 15px;
+}
+
+.btn-primary {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #2563eb;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1e40af;
+}
+
+.terms-note {
+  font-size: 0.5rem; /* smaller font to keep single line */
+  color: #555;
+  text-align: center;
+  white-space: nowrap; /* prevent wrapping */
+}
+
+.terms-note a.btn-link {
+font-size: 0.3rem;
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+  margin: 0;   /* remove any default margin */
+  padding: 0;  /* remove any default padding */
+}
+.terms-note a.btn-link:hover {
+  color: #1e40af;
 }

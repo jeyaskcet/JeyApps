@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   profileBtn?.addEventListener('click', () => {
     document.querySelectorAll('main > *').forEach(el => el.classList.add('hidden'));
-    profileSection.classList.remove('hidden');
+   window.location.href = "home.html#profile"; profileSection.classList.remove('hidden');
     loadProfile();
     loadAddresses();
     if (productStatus) productStatus.style.display = 'none';
@@ -147,7 +147,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const storedTheme = localStorage.getItem('theme');
   if (storedTheme === 'dark') document.body.classList.add('dark-mode');
   
- 
+  function loadSettingsTheme() {
+  const themeRadios = document.querySelectorAll('input[name="theme"]');
+
+  // Fetch saved theme from localStorage, default to "light"
+  const savedTheme = localStorage.getItem("theme") || "light";
+
+  themeRadios.forEach(radio => {
+    radio.checked = radio.value === savedTheme;
+
+    // Add change listener to update theme
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        localStorage.setItem("theme", radio.value);
+        document.documentElement.setAttribute("data-theme", radio.value); // optional
+        console.log("Theme updated to:", radio.value);
+      }
+    });
+  });
+}
+  
   yourOrdersBtn?.addEventListener("click", e => {
       e.preventDefault();
       loadOrders();
@@ -173,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (productStatus) productStatus.style.display = 'none';
     settingsSection.classList.remove("hidden");
     sidebar?.classList.remove("open");
+    loadSettingsTheme();
   });
 
   ContactUsBtn?.addEventListener("click", (e) => {
@@ -335,6 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hash === "#home" && statusWrapper) {
           statusWrapper.style.display = "block";
         }
+        if (hash === "#settings" && statusWrapper) {
+          loadSettingsTheme();
+        }
 
 // Load orders when we land on #orders
       if (hash === "#orders") {
@@ -361,6 +384,7 @@ function showLoading() {
   }
 
   function navigateToLoginPage() {
+    clearLoginData();
     showLoading();
     setTimeout(() => window.location.href = "index.html", 2000);
   }
@@ -459,15 +483,12 @@ function showLoading() {
 
 
 /* ================================
-   Your Orders Module (Using existing HTML container)
+   Load Orders Module
    ================================ */
-
 function loadOrders() {
   MyFramework.log("INFO", "[Orders] Loading orders...");
 
-  // Use the existing container from HTML
   const ordersContainer = document.getElementById("orders-section");
-
   if (!ordersContainer) {
     MyFramework.log("ERROR", "[Orders] #orders-section not found in DOM.");
     return;
@@ -482,19 +503,20 @@ function loadOrders() {
   ordersContainer.appendChild(title);
 
   let orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-  // Sort orders by date (newest first)
   orders.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (orders.length === 0) {
     ordersContainer.innerHTML += `<p class="no-orders">No orders found.</p>`;
-    ordersContainer.classList.remove("hidden"); // show section
+    ordersContainer.classList.remove("hidden");
     return;
   }
 
   orders.forEach(order => {
     const orderCard = document.createElement("div");
     orderCard.className = "order-card";
+
+    // Default status immediately
+    const defaultStatus = `<span class="status-badge status-pending">Pending Payment</span>`;
 
     orderCard.innerHTML = `
       <div class="order-card-header">
@@ -503,7 +525,7 @@ function loadOrders() {
       </div>
       <div class="order-summary">
         <p><strong>Total:</strong> ${order.total}</p>
-        <p><strong>Status:</strong> <span class="order-status">Loading...</span></p>
+        <p><strong>Status:</strong> <span class="order-status">${defaultStatus}</span></p>
       </div>
       <div class="order-actions">
         <button class="view-order-btn">View Details</button>
@@ -534,7 +556,7 @@ function loadOrders() {
 
     ordersContainer.appendChild(orderCard);
 
-    // Fetch status from external JSON file
+    // Fetch external status
     fetch("orders-status.json")
       .then(res => res.json())
       .then(statusData => {
@@ -545,33 +567,27 @@ function loadOrders() {
           statusObj = statusData;
         }
 
-        if (statusObj) {
-  const status = statusObj.status.toLowerCase();
-  let statusClass = "";
+        const statusSpan = orderCard.querySelector(".order-status");
 
-  if (status.includes("shipped")) statusClass = "status-shipped";
-  else if (status.includes("delivered")) statusClass = "status-delivered";
-  else if (status.includes("placed")) statusClass = "status-placed";
-  else if (status.includes("cancel")) statusClass = "status-cancelled";
-  else statusClass = "status-pending";
+        if (statusObj && statusObj.status) {
+          const statusText = statusObj.status;
+          let statusClass = "status-pending";
+          const lowerStatus = statusText.toLowerCase();
+          if (lowerStatus.includes("shipped")) statusClass = "status-shipped";
+          else if (lowerStatus.includes("delivered")) statusClass = "status-delivered";
+          else if (lowerStatus.includes("placed")) statusClass = "status-placed";
+          else if (lowerStatus.includes("cancel")) statusClass = "status-cancelled";
 
-  orderCard.querySelector(".order-status").innerHTML =
-    `<span class="status-badge ${statusClass}">${statusObj.status}</span>`;
-} else {
-  orderCard.querySelector(".order-status").innerHTML =
-    `<span class="status-badge status-pending">Pending</span>`;
-}
+          statusSpan.innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+        }
       })
       .catch(err => {
         MyFramework.log("ERROR", "[Orders] Could not fetch order status", err);
-        orderCard.querySelector(".order-status").textContent = "Pending";
       });
   });
 
-  // Finally show the section
   ordersContainer.classList.remove("hidden");
 }
-
 /* ================================
    Open Order Modal (uses static HTML)
    ================================ */
@@ -605,9 +621,9 @@ function openOrderModal(order) {
     <div class="order-section">
       <h3>Order Summary</h3>
       <div class="detail-row"><span>Subtotal:</span><span>${order.subtotal}</span></div>
-      <div class="detail-row"><span>Discount:</span><span>${order.discount}</span></div>
       <div class="detail-row"><span>Platform Fee:</span><span>${order.platform}</span></div>
       <div class="detail-row"><span>Delivery Fee:</span><span>${order.delivery}</span></div>
+      <div class="detail-row"><span>Discount${order.couponCode}:</span><span>${order.discount}</span></div>
       <div class="detail-row total"><span>Total:</span><span>${order.total}</span></div>
     </div>
 
@@ -632,18 +648,35 @@ function openOrderModal(order) {
     </div>
 
     <div class="order-section">
-      <h3>Order Progress</h3>
-      <div class="progress-bar">
-        <div class="progress-line"><div class="progress-line-fill"></div></div>
-        <div class="progress-steps">
-          <div class="step">Placed</div>
-          <div class="step">Payment</div>
-          <div class="step">Shipped</div>
-          <div class="step">On the way</div>
-          <div class="step">Delivered</div>
-        </div>
-      </div>
+  <h3>Order Progress</h3>
+  <div class="progress-bar-vertical">
+    <div class="progress-step" data-label="Placed">
+      <img src="img/placed.png" alt="Placed" />
+      <span class="tick">&#10003;</span>
+      <div class="step-label">Placed</div>
     </div>
+    <div class="progress-step" data-label="Payment">
+      <img src="img/payment.png" alt="Payment" />
+      <span class="tick">&#10003;</span>
+      <div class="step-label">Payment</div>
+    </div>
+    <div class="progress-step" data-label="Shipped">
+      <img src="img/shipped.png" alt="Shipped" />
+      <span class="tick">&#10003;</span>
+      <div class="step-label">Shipped</div>
+    </div>
+    <div class="progress-step" data-label="On the way">
+      <img src="img/ontheway.png" alt="On the way" />
+      <span class="tick">&#10003;</span>
+      <div class="step-label">On the way</div>
+    </div>
+    <div class="progress-step" data-label="Delivered">
+      <img src="img/delivered.png" alt="Delivered" />
+      <span class="tick">&#10003;</span>
+      <div class="step-label">Delivered</div>
+    </div>
+  </div>
+</div>
   `;
 
   // Show modal
@@ -655,186 +688,235 @@ function openOrderModal(order) {
     modalOverlay.classList.add("hidden");
   });
 
-  // Fetch extra details (status, payment, comments, courier)
   fetch("orders-status.json")
-    .then(res => res.json())
-    .then(statusData => {
-      let statusObj;
-      if (Array.isArray(statusData)) {
-        statusObj = statusData.find(o => o.OrderID === order.id);
-      } else if (statusData.OrderID === order.id) {
-        statusObj = statusData;
+  .then(res => res.json())
+  .then(statusData => {
+    let statusObj;
+    if (Array.isArray(statusData)) {
+      statusObj = statusData.find(o => o.OrderID === order.id);
+    } else if (statusData.OrderID === order.id) {
+      statusObj = statusData;
+    }
+
+    // ✅ Put it here
+    if (statusObj) {
+      updateVerticalProgressBar(modalOverlay, statusObj.status);
+
+      document.getElementById("courier-info").textContent =
+        `Courier ID: ${statusObj.courierId || "N/A"}`;
+
+      document.getElementById("order-comments").textContent =
+        statusObj.comments || "No comments";
+
+      if (statusObj.payment) {
+        document.getElementById("payment-info").innerHTML = `
+          <div class="detail-row"><span>Payment Mode:</span><span>${statusObj.payment.mode || "N/A"}</span></div>
+          <div class="detail-row"><span>Payment ID:</span><span>${statusObj.payment.id || "N/A"}</span></div>
+          <div class="detail-row"><span>Date of Payment:</span><span>${statusObj.payment.date ? new Date(statusObj.payment.date).toLocaleString() : "N/A"}</span></div>
+          <div class="detail-row"><span>Payment Amount:</span><span>${statusObj.payment.amount || "N/A"}</span></div>
+          <div class="detail-row"><span>Remaining Amount:</span><span>${statusObj.payment.remaining || "N/A"}</span></div>
+        `;
       }
+    } else {
+      // ✅ Default: show progress bar as "Placed" (pending payment)
+      updateVerticalProgressBar(modalOverlay, "Placed");
+    }
+  })
+  .catch(err => {
+    MyFramework.log("ERROR", "[Orders] Could not fetch order details", err);
+    // If fetch fails, still show default
+    updateVerticalProgressBar(modalOverlay, "Placed");
+  });
+  
+  }
 
-      if (statusObj) {
-        updateProgressBar(statusObj.status);
+function updateVerticalProgressBar1(modalOverlay, status) {
+  const stepsData = [
+    { name: "Placed", img: "img/placed.png", gif: "gif/placed.gif" },
+    { name: "Payment", img: "img/payment.png", gif: "gif/payment.gif" },
+    { name: "Shipped", img: "img/shipped.png", gif: "gif/shipped.gif" },
+    { name: "On the way", img: "img/ontheway.png", gif: "gif/ontheway.gif" },
+    { name: "Delivered", img: "img/delivered.png", gif: "gif/delivered.gif" }
+  ];
 
-        document.getElementById("courier-info").textContent =
-          `Courier ID: ${statusObj.courierId || "N/A"}`;
+  const container = modalOverlay.querySelector(".progress-bar-vertical");
+  if (!container) return;
 
-        document.getElementById("order-comments").textContent =
-          statusObj.comments || "No comments";
-
-        if (statusObj.payment) {
-          document.getElementById("payment-info").innerHTML = `
-            <div class="detail-row"><span>Payment Mode:</span><span>${statusObj.payment.mode || "N/A"}</span></div>
-            <div class="detail-row"><span>Payment ID:</span><span>${statusObj.payment.id || "N/A"}</span></div>
-            <div class="detail-row"><span>Date of Payment:</span><span>${statusObj.payment.date ? new Date(statusObj.payment.date).toLocaleString() : "N/A"}</span></div>
-            <div class="detail-row"><span>Payment Amount:</span><span>${statusObj.payment.amount || "N/A"}</span></div>
-            <div class="detail-row"><span>Remaining Amount:</span><span>${statusObj.payment.remaining || "N/A"}</span></div>
-          `;
-        }
-      }
-    })
-    .catch(err => {
-      MyFramework.log("ERROR", "[Orders] Could not fetch order details", err);
-    });
-}
-
-/* ================================
-   Modal for Order Details - old
-   ================================ */
-
-function openOrderModal1(order) {
-  const oldModal = document.getElementById("order-details-modal");
-  if (oldModal) oldModal.remove();
-
-  const modalOverlay = document.createElement("div");
-  modalOverlay.id = "order-details-modal";
-  modalOverlay.className = "modal-overlay order-details-modal";
-
-  modalOverlay.innerHTML = `
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Order Details - ${order.id}</h2>
-        <button class="modal-close">&times;</button>
-      </div>
-      <div class="modal-body scrollable-content">
-
-        <div class="order-section">
-          <h3>Contact Details</h3>
-          <div class="detail-row"><span>Name:</span><span>${order.name}</span></div>
-          <div class="detail-row"><span>Mobile:</span><span>${order.mobile}</span></div>
-          <div class="detail-row"><span>Email:</span><span>${order.email || "N/A"}</span></div>
-        </div>
-
-        <div class="order-section">
-          <h3>Delivery Address</h3>
-          <p>${order.address}</p>
-        </div>
-
-        <div class="order-section">
-          <h3>Order Summary</h3>
-          <div class="detail-row"><span>Subtotal:</span><span>${order.subtotal}</span></div>
-          <div class="detail-row"><span>Discount:</span><span>${order.discount}</span></div>
-          <div class="detail-row"><span>Platform Fee:</span><span>${order.platform}</span></div>
-          <div class="detail-row"><span>Delivery Fee:</span><span>${order.delivery}</span></div>
-          <div class="detail-row total"><span>Total:</span><span>${order.total}</span></div>
-        </div>
-
-        <div class="order-section">
-          <h3>Items</h3>
-          <div class="items-list">${order.items}</div>
-        </div>
-
-        <div class="order-section">
-          <h3>Payment Details</h3>
-          <div id="payment-info" class="payment-box">Loading...</div>
-        </div>
-
-        <div class="order-section">
-          <h3>Comments</h3>
-          <div id="order-comments" class="comments-box">Loading...</div>
-        </div>
-
-        <div class="order-section">
-          <h3>Courier Details</h3>
-          <p id="courier-info">Loading...</p>
-        </div>
-
-        <div class="order-section">
-          <h3>Order Progress</h3>
-          <div class="progress-bar">
-            <div class="progress-line"><div class="progress-line-fill"></div></div>
-            <div class="progress-steps">
-              <div class="step">Placed</div>
-              <div class="step">Payment</div>
-              <div class="step">Shipped</div>
-              <div class="step">On the way</div>
-              <div class="step">Delivered</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
+  container.innerHTML = `
+    <div class="progress-line-vertical"></div>
+    <div class="progress-line-fill-vertical"></div>
+    <div class="progress-steps-vertical"></div>
   `;
 
-//modalOverlay.style.display = 'flex';
- document.body.appendChild(modalOverlay);
+  const stepsContainer = container.querySelector(".progress-steps-vertical");
 
-  modalOverlay.querySelector(".modal-close").addEventListener("click", () => {
-    modalOverlay.remove();
+  // Append steps
+  stepsData.forEach(step => {
+    const stepEl = document.createElement("div");
+    stepEl.className = "progress-step pending";
+    stepEl.dataset.label = step.name;
+    stepEl.innerHTML = `
+      <img src="${step.img}" alt="${step.name}" />
+      <span class="tick">&#10003;</span>
+      <div class="step-label">${step.name}</div>
+    `;
+    stepsContainer.appendChild(stepEl);
   });
 
-  // Fetch extra details from JSON
-  fetch("orders-status.json")
-    .then(res => res.json())
-    .then(statusData => {
-      let statusObj;
-      if (Array.isArray(statusData)) {
-        statusObj = statusData.find(o => o.OrderID === order.id);
-      } else if (statusData.OrderID === order.id) {
-        statusObj = statusData;
-      }
+  // Determine current step based on status and payment
+  let currentIndex = 1; // default to Placed
+  const statusLower = (status || "").toLowerCase();
+  if (statusLower.includes("payment")) currentIndex = 1;
+  else if (statusLower.includes("shipped")) currentIndex = 2;
+  else if (statusLower.includes("on the way")) currentIndex = 3;
+  else if (statusLower.includes("delivered")) currentIndex = 4;
 
-      if (statusObj) {
-        updateProgressBar(statusObj.status);
+  const stepEls = Array.from(stepsContainer.children);
+  stepEls.forEach((stepEl, index) => {
+    const label = stepEl.querySelector(".step-label");
+    const img = stepEl.querySelector("img");
+    const tick = stepEl.querySelector(".tick");
 
-        document.getElementById("courier-info").textContent =
-          `Courier ID: ${statusObj.courierId || "N/A"}`;
+    stepEl.classList.remove("completed", "active", "pending");
+    tick.style.display = "none";
+    img.classList.remove("active-step-gif");
 
-        document.getElementById("order-comments").textContent =
-          statusObj.comments || "No comments";
-
-        if (statusObj.payment) {
-          document.getElementById("payment-info").innerHTML = `
-            <div class="detail-row"><span>Payment Mode:</span><span>${statusObj.payment.mode || "N/A"}</span></div>
-            <div class="detail-row"><span>Payment ID:</span><span>${statusObj.payment.id || "N/A"}</span></div>
-            <div class="detail-row"><span>Date of Payment:</span><span>${statusObj.payment.date ? new Date(statusObj.payment.date).toLocaleString() : "N/A"}</span></div>
-            <div class="detail-row"><span>Payment Amount:</span><span>${statusObj.payment.amount || "N/A"}</span></div>
-            <div class="detail-row"><span>Remaining Amount:</span><span>${statusObj.payment.remaining || "N/A"}</span></div>
-          `;
-        }
-      }
-    })
-    .catch(err => {
-      MyFramework.log("ERROR", "[Orders] Could not fetch order details", err);
-    });
-}
-
-/* ================================
-   Progress Bar Helper
-   ================================ */
-function updateProgressBar(status) {
-  const steps = Array.from(document.querySelectorAll(".progress-steps .step"));
-  const statusOrder = ["Placed", "Payment", "Shipped", "On the way", "Delivered"];
-  const currentIndex = statusOrder.findIndex(s => s.toLowerCase() === status.toLowerCase());
-
-  steps.forEach((step, index) => {
-    step.classList.remove("active", "completed");
     if (index < currentIndex) {
-      step.classList.add("completed");
-      step.innerHTML = "✔"; // green tick
+      stepEl.classList.add("completed");
+      tick.style.display = "flex";
+      label.textContent = `${stepsData[index].name} (Completed)`;
+      label.style.color = "#059669";
+      img.src = stepsData[index].img;
     } else if (index === currentIndex) {
-      step.classList.add("active");
+      stepEl.classList.add("active");
+      img.src = stepsData[index].gif;
+      img.classList.add("active-step-gif"); // animate only the GIF
+      label.textContent = `${stepsData[index].name} (In Progress)`;
+      label.style.color = "#f59e0b";
+    } else {
+      stepEl.classList.add("pending");
+      img.src = stepsData[index].img;
+      label.textContent = stepsData[index].name;
+      label.style.color = "#64748b";
     }
   });
 
-  const lineFill = document.querySelector(".progress-line-fill");
-  if (lineFill && currentIndex >= 0) {
-    const percent = (currentIndex / (statusOrder.length - 1)) * 100;
-    lineFill.style.width = percent + "%";
+  // Vertical line fill
+  const lineFill = container.querySelector(".progress-line-fill-vertical");
+  const totalHeight = container.offsetHeight - 60*2; // top and bottom offset
+  lineFill.style.top = "60px";
+  lineFill.style.height = `${(currentIndex / (stepsData.length - 1)) * totalHeight}px`;
+
+  // Update order status badge
+  const statusLabel = modalOverlay.querySelector(".order-status");
+  if (statusLabel) {
+    let badgeClass = "status-pending";
+    if (currentIndex === 0) badgeClass = "status-placed";
+    else if (currentIndex === 1) badgeClass = "status-pending";
+    else badgeClass = `status-${stepsData[currentIndex].name.toLowerCase().replace(/\s+/g,'')}`;
+    statusLabel.innerHTML = `<span class="status-badge ${badgeClass}">${stepsData[currentIndex].name}</span>`;
   }
 }
 
+function updateVerticalProgressBar(modalOverlay, status) {
+  const stepsData = [
+    { name: "Placed", img: "icons/placed.png", gif: "icons/placed.gif" },
+    { name: "Payment", img: "icons/payment.png", gif: "icons/payment.gif" },
+    { name: "Shipped", img: "icons/shipped.png", gif: "icons/shipped.gif" },
+    { name: "On the way", img: "icons/ontheway.png", gif: "icons/ontheway.gif" },
+    { name: "Delivered", img: "icons/delivered.png", gif: "icons/delivered.gif" }
+  ];
+
+  const container = modalOverlay.querySelector(".progress-bar-vertical");
+  if (!container) return;
+
+  // Reset container
+  container.innerHTML = `
+    <div class="progress-line-vertical"></div>
+    <div class="progress-line-fill-vertical"></div>
+    <div class="progress-steps-vertical"></div>
+  `;
+  const stepsContainer = container.querySelector(".progress-steps-vertical");
+
+  // Append steps
+  stepsData.forEach(step => {
+    const stepEl = document.createElement("div");
+    stepEl.className = "progress-step pending";
+    stepEl.dataset.label = step.name;
+    stepEl.innerHTML = `
+      <img src="${step.img}" alt="${step.name}" />
+      <span class="tick">&#10003;</span>
+      <div class="step-label">${step.name}</div>
+    `;
+    stepsContainer.appendChild(stepEl);
+  });
+
+  // Determine current step based on status
+  let currentIndex = 1; // default Placed
+  const statusLower = (status || "").toLowerCase();
+  if (statusLower.includes("payment")) currentIndex = 1;
+  else if (statusLower.includes("shipped")) currentIndex = 2;
+  else if (statusLower.includes("on the way")) currentIndex = 3;
+  else if (statusLower.includes("delivered")) currentIndex = 4;
+
+  const stepEls = Array.from(stepsContainer.children);
+
+  // Update step states
+  stepEls.forEach((stepEl, index) => {
+    const label = stepEl.querySelector(".step-label");
+    const img = stepEl.querySelector("img");
+    const tick = stepEl.querySelector(".tick");
+
+    stepEl.classList.remove("completed", "active", "pending");
+    tick.style.display = "none";
+    img.classList.remove("active-step-gif");
+
+    if (index < currentIndex) {
+      stepEl.classList.add("completed");
+      tick.style.display = "flex";
+      img.src = stepsData[index].img;
+      label.textContent = `${stepsData[index].name} (Completed)`;
+      label.style.color = "#059669";
+    } else if (index === currentIndex) {
+      stepEl.classList.add("active");
+      img.src = stepsData[index].gif;
+      img.classList.add("active-step-gif");
+      label.textContent = `${stepsData[index].name} (In Progress)`;
+      label.style.color = "#f59e0b";
+    } else {
+      stepEl.classList.add("pending");
+      img.src = stepsData[index].img;
+      label.textContent = stepsData[index].name;
+      label.style.color = "#64748b";
+    }
+  });
+
+  // Animate vertical line **after DOM is painted**
+  requestAnimationFrame(() => {
+    const lineFill = container.querySelector(".progress-line-fill-vertical");
+    const totalHeight = container.offsetHeight - 60 * 2; // top/bottom offset
+    const targetHeight = currentIndex === 0
+      ? 0
+      : (currentIndex / (stepsData.length - 1)) * totalHeight;
+
+    lineFill.style.top = "60px";
+    lineFill.style.height = "0px"; // start from 0
+
+    // Trigger smooth animation
+    setTimeout(() => {
+      lineFill.style.transition = "height 0.8s ease";
+      lineFill.style.height = targetHeight + "px";
+    }, 50);
+  });
+
+  // Update modal status badge
+  const statusLabel = modalOverlay.querySelector(".order-status");
+  if (statusLabel) {
+    let badgeClass = "status-pending";
+    if (currentIndex === 0) badgeClass = "status-placed";
+    else if (currentIndex === 1) badgeClass = "status-pending";
+    else badgeClass = `status-${stepsData[currentIndex].name.toLowerCase().replace(/\s+/g,'')}`;
+
+    statusLabel.innerHTML = `<span class="status-badge ${badgeClass}">${stepsData[currentIndex].name}</span>`;
+  }
+}

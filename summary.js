@@ -1,4 +1,7 @@
+protectPage("summary", ["cart"], true);
+
 document.addEventListener("DOMContentLoaded", () => {
+
   MyFramework.log("Summary page loaded");
 
   /* ==========================
@@ -63,19 +66,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   MyFramework.log("Cart loaded", { cart, subtotal });
+  
+  
+  // Load from localStorage
+const checkoutSummary = JSON.parse(localStorage.getItem("checkoutSummary"));
 
-  // Totals
-  document.getElementById("summary-subtotal").textContent = `₹${subtotal.toFixed(2)}`;
-  document.getElementById("summary-platform").textContent = `₹${platformFee.toFixed(2)}`;
-  document.getElementById("summary-delivery").textContent = `₹${deliveryCharge.toFixed(2)}`;
-  document.getElementById("summary-total").textContent =
-    `₹${(subtotal + platformFee + deliveryCharge - discount).toFixed(2)}`;
+if (checkoutSummary) {
+  document.getElementById("summary-subtotal").innerHTML = checkoutSummary.subtotal;
+  document.getElementById("summary-platform").innerHTML = checkoutSummary.platform;
+  document.getElementById("summary-delivery").innerHTML = checkoutSummary.delivery;
+  document.getElementById("summary-total").innerHTML = checkoutSummary.total;
 
-  if (discount > 0) {
-    document.getElementById("summary-discount").textContent =
-      `-₹${discount.toFixed(2)} (${couponCode})`;
-    document.getElementById("summary-discount-line").style.display = "block";
-  }
+  if (checkoutSummary.discount && checkoutSummary.discount !== "₹0.00") {
+  document.getElementById("summary-discount-line").style.display = "flex";
+
+  // Split into label and value
+  document.getElementById("summary-discount-label").textContent =
+    `Discount (${checkoutSummary.coupon || "Coupon"}):`;
+  document.getElementById("summary-discount-value").textContent =
+    `${checkoutSummary.discount}`;
+}
+}
 
   /* ==========================
      References
@@ -141,17 +152,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function endDrag() {
-    if (!isDragging) return;
-    isDragging = false;
+  if (!isDragging) return;
+  isDragging = false;
 
-    if (parseInt(swipeThumb.style.left) >= trackWidth - thumbWidth - 10) {
-      swipeThumb.style.left = (trackWidth - thumbWidth) + "px";
-      swipeTrack.classList.add("success");
-      swipeText.textContent = "Thanks for ordering!";
-      swipeText.style.opacity = 1;
-      swipeIcon.src = "icons/tick.gif";
-      MyFramework.log("Order confirmed by swipe!");
+  if (parseInt(swipeThumb.style.left) >= trackWidth - thumbWidth - 10) {
+    swipeThumb.style.left = (trackWidth - thumbWidth) + "px";
 
+    // ✅ Show "Processing your order..." first
+    swipeTrack.classList.remove("success");
+    swipeTrack.style.backgroundColor = "#3b82f6"; // Blue background
+    swipeText.textContent = "Processing your order...";
+    swipeText.style.color = "#ffffff"; // White text for contrast
+    swipeText.style.opacity = 1;
+    swipeIcon.src = "icons/processing.gif"; // Processing GIF
+    MyFramework.log("Order confirmed by swipe, showing processing...");
+
+    // Show loading overlay
+    showLoading();
+
+    setTimeout(() => {
       // ✅ Save order
       const orderId = "JCR" + Math.floor(100000 + Math.random() * 900000);
       const orderDetails = {
@@ -160,11 +179,16 @@ document.addEventListener("DOMContentLoaded", () => {
         mobile: document.getElementById("summary-mobile").textContent,
         email: document.getElementById("summary-email").textContent,
         address: document.getElementById("summary-address").textContent,
-        subtotal: document.getElementById("summary-subtotal").textContent,
-        platform: document.getElementById("summary-platform").textContent,
-        delivery: document.getElementById("summary-delivery").textContent,
-        discount: discount > 0 ? `-₹${discount.toFixed(2)} (${couponCode})` : "₹0.00",
-        total: document.getElementById("summary-total").textContent,
+        subtotal: document.getElementById("summary-subtotal").innerHTML,
+        platform: document.getElementById("summary-platform").innerHTML,
+        delivery: document.getElementById("summary-delivery").innerHTML,
+        couponCode: discount > 0 
+          ? `(${couponCode})` 
+          : "",
+          discount: discount > 0 
+          ? `-₹${discount.toFixed(2)}` 
+          : "₹0.00",
+        total: document.getElementById("summary-total").innerHTML,
         items: document.getElementById("summary-cart-items").innerHTML,
         date: new Date().toISOString(),
       };
@@ -174,23 +198,37 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("orders", JSON.stringify(orders));
       MyFramework.log("Order saved", orderDetails);
 
-      // ✅ Clear localStorage (commented for testing)
-      // localStorage.removeItem("cart");
-      // localStorage.removeItem("selectedProducts");
-      // localStorage.removeItem("appliedCoupon");
+      // Clear localStorage
+      localStorage.removeItem("cart");
+      localStorage.removeItem("selectedProducts");
+      localStorage.removeItem("appliedCoupon");
+      localStorage.removeItem("checkoutSummary");
 
-      // Show confirmation + confetti
+      // Hide loading overlay
+      const loadingOverlay = document.getElementById("loadingOverlay");
+      if (loadingOverlay) loadingOverlay.style.display = "none";
+
+      // ✅ Show final confirmation
+      swipeTrack.classList.add("success");
+      swipeTrack.style.backgroundColor = "#22c55e"; // Green background
+      swipeText.textContent = "Thanks for ordering!";
+      swipeText.style.color = "#ffffff"; // White text for contrast
+      swipeIcon.src = "icons/tick.gif"; // Your "thanks" GIF
+
       summaryContainer.classList.add("hidden");
       orderConfirmation.classList.remove("hidden");
       document.getElementById("order-id").textContent = orderId;
+
+      // Confetti
       burstConfetti();
       MyFramework.log("Order confirmation displayed with confetti");
-    } else {
-      swipeThumb.style.left = "0px";
-      swipeText.style.opacity = 1;
-      swipeIcon.src = "icons/swipe.gif";
-    }
+    }, 5000);
+  } else {
+    swipeThumb.style.left = "0px";
+    swipeText.style.opacity = 1;
+    swipeIcon.src = "icons/swipe.gif";
   }
+}
 
   swipeThumb.addEventListener("mousedown", (e) => startDrag(e.clientX));
   document.addEventListener("mousemove", (e) => moveDrag(e.clientX));
@@ -348,7 +386,34 @@ document.addEventListener("DOMContentLoaded", () => {
      Back to Home
   ========================== */
   backHomeBtn?.addEventListener("click", () => {
-    MyFramework.log("Navigating back to home");
-    window.location.href = "home.html";
+    MyFramework.log("Navigating back to Your Orders");
+    window.location.href = "home.html#orders";
   });
+});
+
+
+const copyBtn = document.getElementById("copy-upi-btn");
+const upiInput = document.getElementById("upi-number");
+
+copyBtn?.addEventListener("click", () => {
+  navigator.clipboard.writeText(upiInput.value)
+    .then(() => {
+      // temporary tooltip
+      const tooltip = document.createElement("span");
+      tooltip.textContent = "Copied!";
+      tooltip.style.position = "absolute";
+      tooltip.style.background = "#111827";
+      tooltip.style.color = "#fff";
+      tooltip.style.padding = "3px 6px";
+      tooltip.style.fontSize = "0.8rem";
+      tooltip.style.borderRadius = "4px";
+      tooltip.style.top = copyBtn.getBoundingClientRect().top - 30 + "px";
+      tooltip.style.left = copyBtn.getBoundingClientRect().left + "px";
+      tooltip.style.zIndex = 9999;
+      document.body.appendChild(tooltip);
+      setTimeout(() => tooltip.remove(), 1000);
+    })
+    .catch(() => {
+      alert("Failed to copy. Please copy manually.");
+    });
 });

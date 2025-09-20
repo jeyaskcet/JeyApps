@@ -23,6 +23,7 @@
   <ul>
   <li><a href="home.html#home"><img src="icons/home.png" alt="Home" class="sidebar-icon">Home</a></li>
   <li><a href="home.html#profile"><img src="icons/profile.png" alt="Profile" class="sidebar-icon">Profile</a></li>
+  <li><a href="cart.html"><img src="icons/cart.png" alt="Cart" class="sidebar-icon">Go to Cart</a></li>
   <li><a href="home.html#orders"><img src="icons/orders.png" alt="Orders" class="sidebar-icon">Your Orders</a></li>
   <li><a href="home.html#contact"><img src="icons/contactus.png" alt="Contact" class="sidebar-icon">Contact Us</a></li>
   <li><a href="home.html#settings"><img src="icons/settings.png" alt="Settings" class="sidebar-icon">Settings</a></li>
@@ -192,23 +193,24 @@
       <div class="total-line"><span>Subtotal:</span> <span id="summary-subtotal"></span></div>
       <div class="total-line"><span>Platform Fee:</span> <span id="summary-platform"></span></div>
       <div class="total-line"><span>Delivery Charge:</span> <span id="summary-delivery"></span></div>
-      <div class="total-line discount" id="summary-discount-line" style="display:none;">
-        <span>Discount:</span> <span id="summary-discount"></span>
-      </div>
+      <div id="summary-discount-line" style="display: none; justify-content: space-between;">
+  <span id="summary-discount-label"></span>
+  <span id="summary-discount-value"></span>
+</div>
       <hr>
       <div class="total-line"><strong>Total:</strong> <strong id="summary-total"></strong></div>
     </section>
 
     <section class="order-info">
-      <p>ℹ️ Once the order is placed, our executive team will contact you for payment.  
-      After payment is confirmed, the products will be shipped.  
-      <br><br>Payment is <strong>optional</strong> through QR (for advance payment).  
-      </p>
-      <div class="order-links">
-        <button id="qr-btn">View QR Code</button>
-        <button id="terms-btn">Terms & Conditions</button>
-      </div>
-    </section>
+  <p>ℹ️ Once the order is placed, our team will contact you to confirm the payment and finalize the order.  
+  <br><br>For your convenience, <strong>advance payment via QR code is advisable</strong>.  
+  This helps us dispatch your products faster.</p>
+
+  <div class="order-links-center">
+    <button id="qr-btn" class="btn btn-primary">💳 View QR Code</button>
+    <span class="terms-note">Please read the <a href="#" id="terms-btn" class="btn btn-link">Terms & Conditions</a> before ordering.</span>
+  </div>
+</section>
   </div>
   
   <div id="custom-alert" class="custom-alert hidden">
@@ -228,16 +230,26 @@
 <div class="modal-overlay qr-modal hidden">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>Payment QR Code (Optional)</h2>
+      <h2>Payment QR Code</h2>
       <button class="modal-close">&times;</button>
     </div>
     <div class="modal-body">
-      <img src="icons/qr-sample.png" alt="QR Code" class="qr-img"/>
-      <p>Scan this QR code for advance payment (optional).</p>
-    </div>
-    <div class="modal-footer">
-      
-    </div>
+  <img src="img/qr-sample.png" alt="QR Code" class="qr-img"/>
+  
+  <p class="qr-instruction">
+    Scan this QR code for payment
+  </p>
+  
+  <p class="upi-instruction">
+    Or Send Money to the below number through any UPI app
+  </p>
+
+  <div class="upi-copy-container">
+    <input type="text" id="upi-number" value="+91-9876543210" readonly />
+    <img id="copy-upi-btn" src="icons/copy.png" alt="Copy" title="Copy"/>
+  </div>
+</div>
+</div>
   </div>
 </div>
 
@@ -264,17 +276,26 @@
     </div>
     <div class="modal-body scrollable-content">
       <ul>
-        <li>✅ Once shipped, an order ID and tracking details will be shared.</li>
-        <li>✅ Orders cannot be cancelled once the shipment is done.</li>
-        <li>✅ If you want to cancel before shipment, please contact our customer care immediately.</li>
-        <li>✅ Payment can be made upon delivery (COD) or optionally in advance.</li>
-        <li>✅ Shipping timelines may vary depending on your location and festive demand.</li>
-        <li>✅ Damaged or defective items must be reported within 24 hours of delivery.</li>
-        <li>✅ Please read our return & refund policy before ordering.</li>
+        <!-- App Features & Offers -->
+        <li>📌 Explore our <strong>Offers</strong> section in the app for a variety of ongoing deals and discounts.</li>
+        <li>💡 Before placing an order, please utilize available offers by applying coupons in the <strong>Coupon Section</strong> on the Cart page.</li>
+        <li>🎁 Special users who make frequent or high-value purchases may receive <strong>private coupons</strong> for additional savings.</li>
+        <li>🚚 Orders above ₹2,000 qualify for <strong>free delivery and waived platform fees</strong>, which are automatically applied at checkout.</li>
+        <li>🛍️ On the Home page, each product shows its percentage discount. You can also combine these with additional offers in the Cart page.</li>
+        <li>⚠️ Orders where eligible offers or coupons are not applied correctly may be canceled. Always double-check your cart before confirming.</li>
+        <li>✏️ Ensure your <strong>profile details and delivery address</strong> are up-to-date before placing an order.</li>
+
+        <!-- Standard Terms -->
+        <li>✅ Once an order is shipped, an order ID and tracking details will be shared with you.</li>
+        <li>❌ Orders cannot be canceled once the shipment is done. Before shipment, you may contact our customer care to cancel.</li>
+        <li>💰 Refunds are <strong>not provided</strong> after shipment. Please read our Return & Refund policy carefully before ordering.</li>
+        <li>💳 Payment can be made upon delivery (COD) or optionally in advance via QR code.</li>
+        <li>⏱️ Shipping timelines may vary depending on your location and festive demand.</li>
+        <li>⚠️ Damaged or defective items must be reported within 24 hours of delivery to be eligible for replacement.</li>
       </ul>
     </div>
     <div class="modal-footer">
-      
+      <p style="font-size: 0.9rem; color: #555;">By placing an order, you acknowledge that you have read and agree to all terms and conditions listed above.</p>
     </div>
   </div>
 </div>
@@ -307,7 +328,7 @@
     <h2 class="animate-pop">🎉 Order Confirmed!</h2>
     <p>Your order has been placed successfully.</p>
     <p><strong>Order ID:</strong> <span id="order-id"></span></p>
-    <button id="back-home-btn">Back to Home</button>
+    <button id="back-home-btn">Track Order</button>
   </div>
 <canvas id="confettiCanvas"></canvas>
 

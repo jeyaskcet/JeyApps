@@ -1,3 +1,5 @@
+checkLoginPageAccess();
+
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("loginForm").addEventListener("submit", function(event) {
         event.preventDefault();
@@ -33,6 +35,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (validUser) {
             if (validPassword) {
                 localStorage.setItem("username", username);
+                
+setAuthenticated(username, "home.html");
                 navigateToHome();
                 localStorage.setItem("savedUsername", username);
   localStorage.setItem("savedPassword", password); // NOT secure!

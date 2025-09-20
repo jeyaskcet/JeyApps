@@ -1,4 +1,7 @@
+protectPage("home", ["index"], true);
+
 document.addEventListener('DOMContentLoaded', () => {
+
   const productsList = document.getElementById('products-list');
   const cartBtn = document.getElementById('cart-btn');
   const cartModal = document.querySelector('.cart-modal');
@@ -148,9 +151,9 @@ function filterProducts(category) {
     const card = document.createElement('div');
     card.className = 'product-card';
 
-    const imagesHtml = product.images.map((img, idx) => `
-      <img src="${img}" class="carousel-image${idx === 0 ? ' active' : ''}" />
-    `).join('');
+     const imagesHtml = product.images.map((img, idx) => `  
+       <img src="${img}" class="carousel-image${idx === 0 ? ' active' : ''}" />.   
+      `).join('');    
 
     const dotsHtml = product.images.map((_, idx) => `
       <span class="carousel-dot${idx === 0 ? ' active' : ''}" data-idx="${idx}"></span>

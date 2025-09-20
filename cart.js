@@ -1,4 +1,7 @@
+protectPage("cart", ["home"], true);
+
 document.addEventListener('DOMContentLoaded', () => {
+
   MyFramework.log("DOM fully loaded and parsed");
 
   const cartItemsContainer = document.getElementById('cart-items');
@@ -22,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Coupon state
   let discount = 0;
   let couponApplied = "";
+
+  // ✅ Free delivery constant
+  const FREE_DELIVERY_LIMIT = 2000;
 
   // Restore saved coupon if exists
   const savedCoupon = JSON.parse(localStorage.getItem('appliedCoupon'));
@@ -60,15 +66,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render Cart
-  function renderCart() {
-    MyFramework.log("Rendering cart...");
-    cartItemsContainer.innerHTML = '';
-    let subtotal = 0;
-    let platformFee = 10;
-    let deliveryFee = 100;
+  // ✅ Update summary block
+  function updateSummary(subtotal, platformFee, deliveryFee, discount) {
+    subtotalElem.textContent = `₹${subtotal.toFixed(2)}`;
 
-    const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
+    if (subtotal >= FREE_DELIVERY_LIMIT) {
+  // Show icons near labels, strike out amounts on right
+  platformFeeElem.parentElement.querySelector("span:first-child").innerHTML = 
+    `Platform Fee: <img src="icons/free-platformfee.png" alt="FREE" class="free-icon" />`;
+  platformFeeElem.innerHTML = `<s style="color:#22c55e">₹10.00</s>`;
+
+  deliveryChargeElem.parentElement.querySelector("span:first-child").innerHTML = 
+    `Delivery Charge: <img src="icons/free-delivery.png" alt="FREE" class="free-icon" />`;
+  deliveryChargeElem.innerHTML = `<s style="color:#22c55e">₹100.00</s>`;
+} else {
+  // Reset to normal labels and values
+  platformFeeElem.parentElement.querySelector("span:first-child").textContent = "Platform Fee:";
+  deliveryChargeElem.parentElement.querySelector("span:first-child").textContent = "Delivery Charge:";
+
+  platformFeeElem.textContent = `₹${platformFee.toFixed(2)}`;
+  deliveryChargeElem.textContent = `₹${deliveryFee.toFixed(2)}`;
+}
+
+totalElem.textContent = `₹${(subtotal + platformFee + deliveryFee - discount).toFixed(2)}`;
+
+    // Discount line
+    if (discount > 0 && couponApplied) {
+  discountLine.style.display = 'flex';
+  discountLine.innerHTML = `
+    <span>
+      Discount (${couponApplied}):
+      <button id="remove-coupon-btn" class="remove-coupon-btn">
+        <img src="icons/delete.png" alt="DeleteCoupon" class="delete-coupon" />
+      </button>
+    </span>
+    <span>-₹${discount.toFixed(2)}</span>
+  `;
+
+
+      document.getElementById("remove-coupon-btn").addEventListener("click", () => {
+        showCustomAlert(
+          "Are you sure?",
+          "Do you really want to delete your applied coupon?",
+          "Confirm",
+          () => {
+            MyFramework.log("Coupon removed");
+            discount = 0;
+            couponApplied = "";
+            localStorage.removeItem("appliedCoupon");
+            updateCouponButton();
+            renderCart();
+          }
+        );
+      });
+    } else {
+      discountLine.style.display = 'none';
+    }
+  }
+
+  function renderCart() {
+  MyFramework.log("Rendering cart...");
+  cartItemsContainer.innerHTML = '';
+
+  const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+  const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts') || '[]');
+
+  // ✅ Check if cart is empty
+  if (Object.keys(cart).length === 0 || selectedProducts.length === 0) {
+    // Hide totals
+    subtotalElem.textContent = '₹0.00';
+    platformFeeElem.textContent = '₹0.00';
+    deliveryChargeElem.textContent = '₹0.00';
+    totalElem.textContent = '₹0.00';
+    discountLine.style.display = 'none';
+
+    // Show empty cart image
+    const emptyCartElem = document.getElementById("empty-cart");
+    if (emptyCartElem) emptyCartElem.classList.remove("hidden");
+
+    // Hide summary section if exists
+    if (summarySection) summarySection.style.display = 'none';
+
+    MyFramework.log("Cart is empty. Empty cart image displayed.");
+    return; // Stop further processing
+  }
+
+  // ✅ Cart has items, hide empty image
+  const emptyCartElem = document.getElementById("empty-cart");
+  if (emptyCartElem) emptyCartElem.classList.add("hidden");
+
+  // Continue with normal cart rendering
+  let subtotal = 0;
+  let platformFee = 10;
+  let deliveryFee = 100;
+
     const productIds = Object.keys(cart);
 
     productIds.forEach((productId, index) => {
@@ -99,37 +190,49 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    subtotalElem.textContent = `₹${subtotal.toFixed(2)}`;
-    platformFeeElem.textContent = `₹${platformFee.toFixed(2)}`;
-    deliveryChargeElem.textContent = `₹${deliveryFee.toFixed(2)}`;
-    totalElem.textContent = `₹${(subtotal + platformFee + deliveryFee - discount).toFixed(2)}`;
+   // ✅ Free delivery & fee + banner
+const banner = document.getElementById("free-delivery-banner");
+if (subtotal >= FREE_DELIVERY_LIMIT) {
+  platformFee = 0;
+  deliveryFee = 0;
+  if (banner) banner.classList.remove("hidden");
+} else {
+  if (banner) banner.classList.add("hidden");
+}
 
-    if (discount > 0 && couponApplied) {
-      discountLine.style.display = 'flex';
-      discountLine.innerHTML = `
-        <span>Discount (${couponApplied}):</span>
-        <span>
-          -₹${discount.toFixed(2)} 
-          <button id="remove-coupon-btn" class="remove-coupon-btn">❌</button>
-        </span>
-      `;
-
-      // Delete coupon logic
-      document.getElementById("remove-coupon-btn").addEventListener("click", () => {
-        MyFramework.log("Coupon removed");
-        discount = 0;
-        couponApplied = "";
-        localStorage.removeItem("appliedCoupon");
-        updateCouponButton();
-        renderCart();
-      });
+    // ✅ Coupon recalculation
+    discount = 0;
+    if (couponApplied) {
+      fetch('offers.json')
+        .then(res => res.json())
+        .then(offers => {
+          const offer = offers.find(o => o.code.toUpperCase() === couponApplied);
+          if (offer && subtotal >= offer.minPurchase) {
+            let calcDiscount = (offer.discountPercent / 100) * subtotal;
+            discount = offer.maxDiscount !== undefined
+              ? Math.min(calcDiscount, offer.maxDiscount)
+              : calcDiscount;
+          } else {
+            MyFramework.log("Coupon auto removed (subtotal too low or invalid)");
+            couponApplied = "";
+            localStorage.removeItem("appliedCoupon");
+          }
+          updateSummary(subtotal, platformFee, deliveryFee, discount);
+        })
+        .catch(() => {
+          MyFramework.log("ERROR fetching offers.json");
+          updateSummary(subtotal, platformFee, deliveryFee, 0);
+        });
     } else {
-      discountLine.style.display = 'none';
+      updateSummary(subtotal, platformFee, deliveryFee, 0);
     }
 
     updateCouponButton();
+    attachQuantityListeners();
+  }
 
-    // Quantity buttons
+  // Attach increase/decrease buttons
+  function attachQuantityListeners() {
     document.querySelectorAll('.increase-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.dataset.id;
@@ -158,18 +261,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderCart();
 
-  // Coupon modal handling
   if (applyCouponBtn) {  
-    applyCouponBtn.addEventListener('click', () => {
-      couponModal.style.display = 'flex';
-    });
+  applyCouponBtn.addEventListener('click', () => {
+    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+    const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts') || '[]');
 
-    const closeCouponBtn = document.getElementById('close-coupon-btn');
-    if (closeCouponBtn) {
-      closeCouponBtn.addEventListener('click', () => {
-        couponModal.style.display = 'none';
-      });
+    if (Object.keys(cart).length === 0 || selectedProducts.length === 0) {
+      showCustomAlert(
+        "Cart is empty",
+        "You cannot apply a coupon because your cart is empty. Please add products first.",
+        "OK"
+      );
+      return; // stop execution
     }
+
+    // Cart has items, open coupon modal
+    couponModal.style.display = 'flex';
+  });
+
+  const closeCouponBtn = document.getElementById('close-coupon-btn');
+  if (closeCouponBtn) {
+    closeCouponBtn.addEventListener('click', () => {
+      couponModal.style.display = 'none';
+    });
+  }
 
     submitCouponBtn.addEventListener('click', () => {
       const code = document.getElementById('coupon-code').value.trim().toUpperCase();
@@ -227,10 +342,66 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      window.location.href = 'summary.html';
-    });
-  }
+  nextBtn.addEventListener('click', () => {
+    // 1️⃣ Validate Cart
+    const cartObj = JSON.parse(localStorage.getItem('cart') || '{}');
+    const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts') || '[]');
+    if (Object.keys(cartObj).length === 0 || selectedProducts.length === 0) {
+      showCustomAlert("Cart is empty. Please add products before proceeding.");
+      return;
+    }
+
+    // 2️⃣ Validate Profile
+    const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+    if (!profile.name || !profile.name.trim()) {
+      showCustomAlert("Please enter your Name in Profile before proceeding.");
+      return;
+    }
+
+    if (!profile.mobile || !/^\d{10}$/.test(profile.mobile)) {
+      showCustomAlert("Please enter a valid 10-digit Mobile Number in Profile.");
+      return;
+    }
+
+    // 3️⃣ Validate Delivery Address
+    const addresses = JSON.parse(localStorage.getItem('addresses') || '[]');
+    const activeIndex = parseInt(localStorage.getItem('activeAddress')) || 0;
+    const activeAddress = addresses[activeIndex];
+
+    if (!activeAddress) {
+      showCustomAlert("No delivery address selected. Please add and select a delivery address.");
+      return;
+    }
+
+    const requiredFields = ['door', 'street', 'city', 'district', 'state', 'pincode'];
+    for (let field of requiredFields) {
+      if (!activeAddress[field] || !activeAddress[field].trim()) {
+        showCustomAlert(`Please fill in the ${field.charAt(0).toUpperCase() + field.slice(1)} in your delivery address.`);
+        return;
+      }
+    }
+
+    if (!/^\d{6}$/.test(activeAddress.pincode)) {
+      showCustomAlert("Pincode must be exactly 6 digits.");
+      return;
+    }
+    // ✅ All validations passed, save checkout summary
+    const summaryData = {
+      coupon: `${couponApplied}`,
+      subtotal: subtotalElem.innerHTML,
+      platform: platformFeeElem.innerHTML,
+      delivery: deliveryChargeElem.innerHTML,
+      discount: discount > 0 ? `-₹${discount.toFixed(2)}` : "₹0.00",
+      total: totalElem.innerHTML
+    };
+    localStorage.setItem("checkoutSummary", JSON.stringify(summaryData));
+
+// Navigate to summary page
+showLoading();
+    setTimeout(() => window.location.href = "summary.html", 2000);
+    
+  });
+}
 
   // Delete cart
   if (deleteCartBtn) {
