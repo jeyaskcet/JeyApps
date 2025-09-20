@@ -164,19 +164,22 @@ function clearLoginData() {
 /**
  * Call this on index.html load to ensure unauthorized access is blocked
  */
+let isRedirecting = false;
+
 function checkLoginPageAccess() {
+  if (isRedirecting) return;
+
   const user = localStorage.getItem("user");
   const loginTime = localStorage.getItem("loginTime");
 
-  // If user is already logged in and session not expired, redirect to home
   if (user && loginTime) {
     const elapsedMinutes = (Date.now() - parseInt(loginTime, 10)) / (1000 * 60);
     if (elapsedMinutes <= 30) {
-      window.location.href = "home.html";
+      isRedirecting = true; // prevent loop
+      window.location.replace("home.html"); // safer than href
       return;
     }
   }
 
-  // If user is coming to login page accidentally or after expiry, clear everything
   clearLoginData();
 }
