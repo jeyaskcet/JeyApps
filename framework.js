@@ -178,5 +178,5 @@ function checkLoginPageAccess() {
   }
 
   // If user is coming to login page accidentally or after expiry, clear everything
-  logoutUser();
+  clearLoginData();
 }
