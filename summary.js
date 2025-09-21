@@ -173,30 +173,32 @@ if (checkoutSummary) {
     setTimeout(() => {
       // ✅ Save order
       const orderId = "JCR" + Math.floor(100000 + Math.random() * 900000);
-      const orderDetails = {
-        id: orderId,
-        name: document.getElementById("summary-name").textContent,
-        mobile: document.getElementById("summary-mobile").textContent,
-        email: document.getElementById("summary-email").textContent,
-        address: document.getElementById("summary-address").textContent,
-        subtotal: document.getElementById("summary-subtotal").innerHTML,
-        platform: document.getElementById("summary-platform").innerHTML,
-        delivery: document.getElementById("summary-delivery").innerHTML,
-        couponCode: discount > 0 
-          ? `(${couponCode})` 
-          : "",
-          discount: discount > 0 
-          ? `-₹${discount.toFixed(2)}` 
-          : "₹0.00",
-        total: document.getElementById("summary-total").innerHTML,
-        items: document.getElementById("summary-cart-items").innerHTML,
-        date: new Date().toISOString(),
-      };
+const orderDetails = {
+  id: orderId,
+  user: localStorage.getItem("username"),
+  name: document.getElementById("summary-name").textContent,
+  mobile: document.getElementById("summary-mobile").textContent,
+  email: document.getElementById("summary-email").textContent,
+  address: document.getElementById("summary-address").textContent,
+  subtotal: document.getElementById("summary-subtotal").innerHTML,
+  platform: document.getElementById("summary-platform").innerHTML,
+  delivery: document.getElementById("summary-delivery").innerHTML,
+  couponCode: discount > 0 ? `(${couponCode})` : "",
+  discount: discount > 0 ? `-₹${discount.toFixed(2)}` : "₹0.00",
+  total: document.getElementById("summary-total").innerHTML,
+  items: document.getElementById("summary-cart-items").innerHTML,
+  date: new Date().toISOString(),
+};
 
-      let orders = JSON.parse(localStorage.getItem("orders")) || [];
-      orders.push(orderDetails);
-      localStorage.setItem("orders", JSON.stringify(orders));
-      MyFramework.log("Order saved", orderDetails);
+// Save locally
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+orders.push(orderDetails);
+localStorage.setItem("orders", JSON.stringify(orders));
+MyFramework.log("Order saved locally", orderDetails);
+
+// Send to Google Sheets
+submitOrderToSheet(orderDetails);
+
 
       // Clear localStorage
       localStorage.removeItem("cart");
@@ -417,3 +419,27 @@ copyBtn?.addEventListener("click", () => {
       alert("Failed to copy. Please copy manually.");
     });
 });
+
+async function submitOrderToSheet(orderDetails) {
+  const sheetUrl = "https://script.google.com/macros/s/AKfycbzd2zOYB1EJDp1r8xDV_vz8G_MtrRPIwLG006BkumWY0JjrrGsmeIysbxYk2bLK2Ax5RA/exec"; // Apps Script URL
+
+  try {
+    const res = await fetch(sheetUrl, {
+      method: "POST",
+      body: JSON.stringify(orderDetails),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      console.log("Order saved to Google Sheet!", orderDetails);
+      MyFramework.log("Order saved to Google Sheet", orderDetails);
+    } else {
+      console.error("Failed to save order", data);
+    }
+  } catch (err) {
+    console.error("Error sending order to sheet:", err);
+  }
+}

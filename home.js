@@ -38,8 +38,20 @@ let lastSelectedCategory = 'All';  // default: All products
   let cart = JSON.parse(localStorage.getItem('cart')) || {};
   
   let products = [];
+  
+  const sheetId = "1SRDLV0_a_-HdmO62p-cXh5USobnTtngNOAw29Fdc0KA"; // Your Sheet ID
+    const apiKey = "AIzaSyD7DXTpSvF5dS1NBLBQPYc-PEU5tec2aGw"; // Your API Key
+    const range = "Sheet2!A1:F"; // Only first row, columns A–E
 
-  fetch('products.json')
+fetchProductsFromSheet(sheetId, range, apiKey).then(data => {
+  products = data;
+  MyFramework.log('Products loaded from Google Sheet');
+  renderCategories();
+  renderProducts();
+  updateCartUI();
+});
+
+ /*   fetch('products.json')
     .then(res => res.json())
     .then(data => {
       products = data;
@@ -53,7 +65,7 @@ updateCartUI();
     .catch(err => {
       console.error("Error loading products.json", err);
       MyFramework.log('Failed to load products');
-    });
+    });  */
 
 let categories = ['மத்தாப்பு & சாட்டை', 'வெடி வகைகள்', 'சக்கரம் & பூச்சட்டி', 'பேன்சி வெடி வகைகள்', 'வான வெடிகள்', 'பைப் ரக வான வெடிகள்', 'All'];
 
@@ -746,3 +758,45 @@ function hideNoResults() {
   });
   
   
+/**
+ * Fetch products from Google Sheets and convert to JSON
+ * @param {string} sheetId - Google Sheet ID
+ * @param {string} range - Range in A1 notation, e.g., "Sheet1!A2:F"
+ * @param {string} apiKey - Google API key
+ * @returns {Promise<Array>} - Array of product objects
+ */
+async function fetchProductsFromSheet(sheetId, range, apiKey) {
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.values || data.values.length === 0) {
+      console.warn("No data found in sheet");
+      return [];
+    }
+
+    const headers = data.values[0];       // First row as headers
+    const rows = data.values.slice(1);    // Remaining rows as data
+
+    // Convert each row to object with keys from headers
+    const products = rows.map(row => {
+      const obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = row[i] || null; // Assign null if cell empty
+      });
+
+      // Optional: Convert numeric fields
+      if (obj.price) obj.price = parseFloat(obj.price);
+      if (obj.mrp) obj.mrp = parseFloat(obj.mrp);
+      if (obj.images) obj.images = obj.images.split(','); // Assuming comma-separated
+      return obj;
+    });
+
+    return products;
+
+  } catch (err) {
+    console.error("Failed to fetch products from sheet:", err);
+    return [];
+  }
+}
