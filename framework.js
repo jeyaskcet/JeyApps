@@ -1,3 +1,21 @@
+let sheetId = '';
+let apiKey = '';
+
+function loadConfig() {
+  return fetch('config.json')
+    .then(res => res.json())
+    .then(data => {
+      sheetId = data.randomID;
+      apiKey = data.randomKey;
+      MyFramework.log('Config loaded');
+      return { sheetId, apiKey }; // pass values along
+    })
+    .catch(err => {
+      console.error('Failed to load config.json', err);
+      throw err;
+    });
+}
+
 window.MyFramework = (() => {
   const logs = [];
 

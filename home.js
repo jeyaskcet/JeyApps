@@ -39,17 +39,23 @@ let lastSelectedCategory = 'All';  // default: All products
   
   let products = [];
   
-  const sheetId = "1SRDLV0_a_-HdmO62p-cXh5USobnTtngNOAw29Fdc0KA"; // Your Sheet ID
-    const apiKey = "AIzaSyD7DXTpSvF5dS1NBLBQPYc-PEU5tec2aGw"; // Your API Key
-    const range = "Sheet2!A1:F"; // Only first row, columns A–E
+    // Call loadConfig and then fetch products
+const range = "Sheet2!A1:F"; // Only first row, columns A–E
 
-fetchProductsFromSheet(sheetId, range, apiKey).then(data => {
-  products = data;
-  MyFramework.log('Products loaded from Google Sheet');
-  renderCategories();
-  renderProducts();
-  updateCartUI();
-});
+  loadConfig()
+    .then(() => {
+      return fetchProductsFromSheet(sheetId, range, apiKey);
+    })
+    .then(data => {
+      products = data;
+      MyFramework.log('Products loaded from Google Sheet');
+      renderCategories();
+      renderProducts();
+      updateCartUI();
+    })
+    .catch(err => {
+      console.error('Error initializing config file', err);
+    });
 
  /*   fetch('products.json')
     .then(res => res.json())
@@ -766,6 +772,12 @@ function hideNoResults() {
  * @returns {Promise<Array>} - Array of product objects
  */
 async function fetchProductsFromSheet(sheetId, range, apiKey) {
+
+if (!sheetId || !apiKey) {
+    console.error("Missing Sheet ID or API Key");
+    return;
+  }
+
   try {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
     const res = await fetch(url);

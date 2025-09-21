@@ -151,80 +151,141 @@ if (checkoutSummary) {
     swipeText.style.opacity = 1 - progress * 1.2;
   }
 
-  function endDrag() {
+
+const RANGE = "Orders!A2:A"; // Column A contains order IDs
+
+/**
+ * Check if the order ID exists in the sheet
+ * @param {string} orderId
+ * @returns {Promise<boolean>}
+ */
+async function isOrderExists(orderId) {
+  // Load config if not loaded yet
+  if (!sheetId || !apiKey) {
+    try {
+      const res = await fetch('config.json');
+      const data = await res.json();
+      sheetId = data.randomID;
+      apiKey = data.randomKey;
+      MyFramework.log('Config loaded inside isOrderExists');
+    } catch (err) {
+      console.error("Failed to load config.json inside isOrderExists", err);
+      return false;
+    }
+  }
+
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${RANGE}?key=${apiKey}`;
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      console.error("Failed to fetch order IDs from Google Sheets:", res.status);
+      return false;
+    }
+
+    const data = await res.json();
+
+    if (!data.values || data.values.length === 0) return false;
+
+    const orderIds = data.values.map(row => row[0]);
+    return orderIds.includes(orderId);
+  } catch (err) {
+    console.error("Error checking order ID:", err);
+    return false;
+  }
+}
+
+async function endDrag() {
   if (!isDragging) return;
   isDragging = false;
 
   if (parseInt(swipeThumb.style.left) >= trackWidth - thumbWidth - 10) {
     swipeThumb.style.left = (trackWidth - thumbWidth) + "px";
 
-    // ✅ Show "Processing your order..." first
+    // Show "Processing your order..."
     swipeTrack.classList.remove("success");
-    swipeTrack.style.backgroundColor = "#3b82f6"; // Blue background
+    swipeTrack.style.backgroundColor = "#3b82f6";
     swipeText.textContent = "Processing your order...";
-    swipeText.style.color = "#ffffff"; // White text for contrast
+    swipeText.style.color = "#ffffff";
     swipeText.style.opacity = 1;
-    swipeIcon.src = "icons/processing.gif"; // Processing GIF
+    swipeIcon.src = "icons/processing.gif";
     MyFramework.log("Order confirmed by swipe, showing processing...");
 
-    // Show loading overlay
     showLoading();
 
-    setTimeout(() => {
-      // ✅ Save order
-      const orderId = "JCR" + Math.floor(100000 + Math.random() * 900000);
-const orderDetails = {
-  id: orderId,
-  user: localStorage.getItem("username"),
-  name: document.getElementById("summary-name").textContent,
-  mobile: document.getElementById("summary-mobile").textContent,
-  email: document.getElementById("summary-email").textContent,
-  address: document.getElementById("summary-address").textContent,
-  subtotal: document.getElementById("summary-subtotal").innerHTML,
-  platform: document.getElementById("summary-platform").innerHTML,
-  delivery: document.getElementById("summary-delivery").innerHTML,
-  couponCode: discount > 0 ? `(${couponCode})` : "",
-  discount: discount > 0 ? `-₹${discount.toFixed(2)}` : "₹0.00",
-  total: document.getElementById("summary-total").innerHTML,
-  items: document.getElementById("summary-cart-items").innerHTML,
-  date: new Date().toISOString(),
-};
+    const orderId = "JCR" + Math.floor(100000 + Math.random() * 900000);
+    const orderDetails = {
+      id: orderId,
+      user: localStorage.getItem("username"),
+      name: document.getElementById("summary-name").textContent,
+      mobile: document.getElementById("summary-mobile").textContent,
+      email: document.getElementById("summary-email").textContent,
+      address: document.getElementById("summary-address").textContent,
+      subtotal: document.getElementById("summary-subtotal").innerHTML,
+      platform: document.getElementById("summary-platform").innerHTML,
+      delivery: document.getElementById("summary-delivery").innerHTML,
+      couponCode: discount > 0 ? `(${couponCode})` : "",
+      discount: discount > 0 ? `-₹${discount.toFixed(2)}` : "₹0.00",
+      total: document.getElementById("summary-total").innerHTML,
+      items: document.getElementById("summary-cart-items").textContent,
+      date: new Date().toISOString(),
+    };
 
-// Save locally
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
-orders.push(orderDetails);
-localStorage.setItem("orders", JSON.stringify(orders));
-MyFramework.log("Order saved locally", orderDetails);
+    // Send to Google Sheets
+    submitOrderToSheet(orderDetails);
 
-// Send to Google Sheets
-submitOrderToSheet(orderDetails);
+    // Polling for order ID for up to 20 seconds
+    const startTime = Date.now();
+    const maxTime = 20000; // 20 seconds
+    const interval = 1000; // check every 1 second
+    let found = false;
 
+    while (Date.now() - startTime < maxTime) {
+      found = await isOrderExists(orderId);
+      if (found) break;
+      await new Promise(res => setTimeout(res, interval));
+    }
 
-      // Clear localStorage
-      localStorage.removeItem("cart");
-      localStorage.removeItem("selectedProducts");
-      localStorage.removeItem("appliedCoupon");
-      localStorage.removeItem("checkoutSummary");
+    // Hide loading overlay
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    if (loadingOverlay) loadingOverlay.style.display = "none";
 
-      // Hide loading overlay
-      const loadingOverlay = document.getElementById("loadingOverlay");
-      if (loadingOverlay) loadingOverlay.style.display = "none";
-
-      // ✅ Show final confirmation
+    if (found) {
+      // ✅ Show success confirmation
       swipeTrack.classList.add("success");
-      swipeTrack.style.backgroundColor = "#22c55e"; // Green background
+      swipeTrack.style.backgroundColor = "#22c55e";
       swipeText.textContent = "Thanks for ordering!";
-      swipeText.style.color = "#ffffff"; // White text for contrast
-      swipeIcon.src = "icons/tick.gif"; // Your "thanks" GIF
+      swipeText.style.color = "#ffffff";
+      swipeIcon.src = "icons/tick.gif";
 
       summaryContainer.classList.add("hidden");
       orderConfirmation.classList.remove("hidden");
       document.getElementById("order-id").textContent = orderId;
 
-      // Confetti
       burstConfetti();
       MyFramework.log("Order confirmation displayed with confetti");
-    }, 5000);
+      
+      // Save locally
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    orders.push(orderDetails);
+    localStorage.setItem("orders", JSON.stringify(orders));
+    MyFramework.log("Order saved locally", orderDetails);
+
+      // Clear local cart data
+      localStorage.removeItem("cart");
+      localStorage.removeItem("selectedProducts");
+      localStorage.removeItem("appliedCoupon");
+      localStorage.removeItem("checkoutSummary");
+    } else {
+      // ❌ Show failure message
+      swipeTrack.classList.remove("success");
+      swipeTrack.style.backgroundColor = "#ef4444"; // Red
+      swipeText.textContent = "Please try again later.";
+      swipeText.style.color = "#ffffff";
+      swipeIcon.src = "icons/error.gif";
+      MyFramework.log("Order not found in sheet after 20s, user notified");
+      showCustomAlert("We’re experiencing technical issues and couldn’t confirm your order at this time. Please try again shortly, or reach out to us directly using the contact number provided in the Contact Us section.");
+    }
   } else {
     swipeThumb.style.left = "0px";
     swipeText.style.opacity = 1;
@@ -421,24 +482,84 @@ copyBtn?.addEventListener("click", () => {
 });
 
 async function submitOrderToSheet(orderDetails) {
-  const sheetUrl = "https://script.google.com/macros/s/AKfycbzd2zOYB1EJDp1r8xDV_vz8G_MtrRPIwLG006BkumWY0JjrrGsmeIysbxYk2bLK2Ax5RA/exec"; // Apps Script URL
+ 
+    const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
 
-  try {
     const res = await fetch(sheetUrl, {
       method: "POST",
-      body: JSON.stringify(orderDetails),
-      headers: {
-        "Content-Type": "application/json"
-      }
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // plain text avoids preflight
+      body: JSON.stringify(orderDetails)         // stringify object
+    });
+
+      MyFramework.log("Order saved to Google Sheet", orderDetails);
+    
+}
+
+async function submitOrderToSheet_old(orderDetails) {
+  try {
+    const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
+
+    const res = await fetch(sheetUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // plain text avoids preflight
+      body: JSON.stringify(orderDetails)         // stringify object
     });
 
     const data = await res.json();
+
     if (data.success) {
       console.log("Order saved to Google Sheet!", orderDetails);
       MyFramework.log("Order saved to Google Sheet", orderDetails);
     } else {
       console.error("Failed to save order", data);
     }
+  } catch (err) {
+    console.error("Error sending order to sheet:", err);
+  }
+}
+
+
+async function submitOrderToSheet_json(orderDetails) {
+  try {
+    const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
+
+    const res = await fetch(sheetUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }, // Send as valid JSON
+      body: JSON.stringify(orderDetails)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      console.log("Order saved to Google Sheet!", orderDetails);
+      MyFramework.log("Order saved to Google Sheet", orderDetails);
+    } else {
+      console.error("Failed to save order", data);
+    }
+  } catch (err) {
+    console.error("Error sending order to sheet:", err);
+  }
+}
+
+
+async function submitOrderToSheet_urlencoded(orderDetails) {
+  const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
+
+  // Convert object to URL-encoded form to avoid preflight
+  const formBody = new URLSearchParams(orderDetails);
+
+  try {
+    await fetch(sheetUrl, {
+      method: "POST",
+      mode: "no-cors",             // key fix
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formBody.toString()
+    });
+
+    console.log("Order sent to Google Sheet (response ignored due to no-cors)");
+    MyFramework.log("Order saved to Google Sheet", orderDetails);
   } catch (err) {
     console.error("Error sending order to sheet:", err);
   }

@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   MyFramework.log('App Initialized');
 
-
   const sidebar = document.getElementById('sidebar');
   const closeSidebarBtn = document.getElementById('close-sidebar-btn');
   const menuBtn = document.getElementById('menu-btn');
