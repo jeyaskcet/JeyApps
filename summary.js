@@ -228,7 +228,11 @@ async function endDrag() {
       discount: discount > 0 ? `-₹${discount.toFixed(2)}` : "₹0.00",
       total: document.getElementById("summary-total").innerHTML,
       items: document.getElementById("summary-cart-items").textContent,
-      date: new Date().toISOString(),
+   date: new Date().toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  })
+  //    date: new Date().toISOString(),
     };
 
     // Send to Google Sheets
@@ -483,7 +487,7 @@ copyBtn?.addEventListener("click", () => {
 
 async function submitOrderToSheet(orderDetails) {
  
-    const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
+    const sheetUrl = "https://script.google.com/macros/s/AKfycbyH4URAqGnEdENdtAWUGQPVu52svo3oUCvesykv_TlvaLpbSpBOKXwPQ50-_yCFHjTTpw/exec";
 
     const res = await fetch(sheetUrl, {
       method: "POST",
@@ -493,74 +497,5 @@ async function submitOrderToSheet(orderDetails) {
     });
 
       MyFramework.log("Order saved to Google Sheet", orderDetails);
-    
-}
-
-async function submitOrderToSheet_old(orderDetails) {
-  try {
-    const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
-
-    const res = await fetch(sheetUrl, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // plain text avoids preflight
-      body: JSON.stringify(orderDetails)         // stringify object
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      console.log("Order saved to Google Sheet!", orderDetails);
-      MyFramework.log("Order saved to Google Sheet", orderDetails);
-    } else {
-      console.error("Failed to save order", data);
-    }
-  } catch (err) {
-    console.error("Error sending order to sheet:", err);
-  }
-}
-
-
-async function submitOrderToSheet_json(orderDetails) {
-  try {
-    const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
-
-    const res = await fetch(sheetUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" }, // Send as valid JSON
-      body: JSON.stringify(orderDetails)
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      console.log("Order saved to Google Sheet!", orderDetails);
-      MyFramework.log("Order saved to Google Sheet", orderDetails);
-    } else {
-      console.error("Failed to save order", data);
-    }
-  } catch (err) {
-    console.error("Error sending order to sheet:", err);
-  }
-}
-
-
-async function submitOrderToSheet_urlencoded(orderDetails) {
-  const sheetUrl = "https://script.google.com/macros/s/AKfycbzieE1cFT-cqcpTA_OVm6Rcc-VM6P8v-4W6di8uf0nTRcaGPDKPvrAuswzb6JacTzo7Tw/exec";
-
-  // Convert object to URL-encoded form to avoid preflight
-  const formBody = new URLSearchParams(orderDetails);
-
-  try {
-    await fetch(sheetUrl, {
-      method: "POST",
-      mode: "no-cors",             // key fix
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: formBody.toString()
-    });
-
-    console.log("Order sent to Google Sheet (response ignored due to no-cors)");
-    MyFramework.log("Order saved to Google Sheet", orderDetails);
-  } catch (err) {
-    console.error("Error sending order to sheet:", err);
-  }
+   
 }
